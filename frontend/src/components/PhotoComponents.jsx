@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import Icons from './Icons';
 
 /**
@@ -74,7 +74,7 @@ const ImageCarousel = ({
       setCurrent((prev) => (prev + 1) % images.length);
     }, interval);
     return () => clearInterval(timer);
-  }, [autoPlay, isPaused, images.length, current]);
+  }, [autoPlay, isPaused, images.length, interval]);
 
   const goTo = (index) => setCurrent(index);
   const next = () => setCurrent((prev) => (prev + 1) % images.length);
@@ -163,8 +163,7 @@ const ImageCarousel = ({
                     letterSpacing: '0.08em',
                     backdropFilter: 'blur(8px)',
                     border: '1px solid rgba(255,255,255,0.25)',
-                    marginBottom: '16px',
-                    backdropFilter: 'blur(8px)'
+                    marginBottom: '16px'
                   }}
                 >
                   {img.category || 'Insurance'}
@@ -232,7 +231,6 @@ const ImageCarousel = ({
               cursor: 'pointer',
               zIndex: 10,
               backdropFilter: 'blur(8px)',
-              border: '1px solid rgba(255,255,255,0.2)',
               transition: 'all 0.3s ease',
               display: 'flex',
               alignItems: 'center',
@@ -262,7 +260,6 @@ const ImageCarousel = ({
               cursor: 'pointer',
               zIndex: 10,
               backdropFilter: 'blur(8px)',
-              border: '1px solid rgba(255,255,255,0.2)',
               transition: 'all 0.3s ease',
               display: 'flex',
               alignItems: 'center',

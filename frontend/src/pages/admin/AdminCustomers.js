@@ -5,7 +5,6 @@ import {
   EmptyState,
   ErrorState,
   Field,
-  Icons,
   Loading,
   Modal,
   PageHeader,

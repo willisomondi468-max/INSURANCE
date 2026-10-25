@@ -1,15 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import api from '../../api';
 
 // WorkforcePerformance - Staff Performance Analytics
 const WorkforcePerformance = () => {
-  const [token, setToken] = useState(localStorage.getItem('token'));
+  const [token] = useState(localStorage.getItem('token'));
   const [staff, setStaff] = useState([]);
   const [loading, setLoading] = useState(true);
   const [year, setYear] = useState(new Date().getFullYear());
   const [month, setMonth] = useState(new Date().getMonth() + 1);
 
-  const fetchStaff = async () => {
+  const fetchStaff = useCallback(async () => {
     try {
       const res = await api.get(`/analytics/staff?year=${year}&month=${month}`, token);
       if (res.success) setStaff(res.data.staff);
@@ -18,11 +18,11 @@ const WorkforcePerformance = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [year, month, token]);
 
   useEffect(() => {
     fetchStaff();
-  }, [token, year, month]);
+  }, [fetchStaff]);
 
   const safePct = (num, den) => den ? ((num / den) * 100).toFixed(2) : '0.00';
 

@@ -1,27 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import api from '../../api';
 
 // WorkforceAttendance - Clock In/Out and Break Management
 const WorkforceAttendance = () => {
-  const [token, setToken] = useState(localStorage.getItem('token'));
+  const [token] = useState(localStorage.getItem('token'));
   const [attendance, setAttendance] = useState(null);
   const [loading, setLoading] = useState(true);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [status, setStatus] = useState('not_clocked_in');
   const [breakType, setBreakType] = useState('lunch');
   const [paid, setPaid] = useState(true);
-  const [records, setRecords] = useState([]);
+  const [, setRecords] = useState([]);
   const [summary, setSummary] = useState(null);
 
-  useEffect(() => {
-    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
-    fetchMyAttendance();
-    fetchRecords();
-    fetchSummary();
-    return () => clearInterval(timer);
-  }, [token]);
-
-  const fetchMyAttendance = async () => {
+  const fetchMyAttendance = useCallback(async () => {
     try {
       const res = await api.get('/attendance/me', token);
       if (res.success) {
@@ -33,25 +25,33 @@ const WorkforceAttendance = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token]);
 
-  const fetchRecords = async () => {
+  const fetchRecords = useCallback(async () => {
     try {
       const res = await api.get('/attendance', token);
       if (res.success) setRecords(res.data.attendance);
     } catch (err) {
       console.error('Fetch records error:', err);
     }
-  };
+  }, [token]);
 
-  const fetchSummary = async () => {
+  const fetchSummary = useCallback(async () => {
     try {
       const res = await api.get('/attendance/summary', token);
       if (res.success) setSummary(res.data);
     } catch (err) {
       console.error('Fetch summary error:', err);
     }
-  };
+  }, [token]);
+
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    fetchMyAttendance();
+    fetchRecords();
+    fetchSummary();
+    return () => clearInterval(timer);
+  }, [fetchMyAttendance, fetchRecords, fetchSummary]);
 
   const handleClockIn = async () => {
     try {

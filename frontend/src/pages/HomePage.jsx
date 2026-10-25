@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PhotoCard, ImageCarousel, StatCounter } from '../components/PhotoComponents';
 import api from '../api.js';
@@ -15,15 +15,11 @@ const img = (name) => `${process.env.PUBLIC_URL || ''}/images/${name}`;
  */
 const HomePage = () => {
   const [stats, setStats] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [, setLoading] = useState(true);
   const authToken = localStorage.getItem('token');
   const navigate = useNavigate();
 
-  useEffect(() => {
-    fetchStats();
-  }, []);
-
-  const fetchStats = async () => {
+  const fetchStats = useCallback(async () => {
     if (!authToken) {
       setLoading(false);
       return;
@@ -42,7 +38,11 @@ const HomePage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [authToken]);
+
+  useEffect(() => {
+    fetchStats();
+  }, [fetchStats]);
 
   const heroImages = [
     {
@@ -179,10 +179,8 @@ const HomePage = () => {
   ];
 
   // Compute stats from backend or fallback
-  const totalCustomers = stats?.usersByRole?.customer || stats?.usersByRole?.Customer || 12000;
   const totalPolicies = (stats?.tasksByStatus?.completed || 8500) + (stats?.tasksByStatus?.in_progress || 1200);
   const claimsProcessed = stats?.tasksByStatus?.pending_review || 300;
-  const attendanceRate = stats?.attendanceToday?.present ? Math.round((stats.attendanceToday.present / (stats.attendanceToday.present + stats.attendanceToday.on_break + stats.attendanceToday.clocked_out)) * 100) : 94;
 
   return (
     <div className="homepage">

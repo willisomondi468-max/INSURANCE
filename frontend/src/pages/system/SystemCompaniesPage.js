@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import api from '../../api';
 
 // SystemCompaniesPage - Company management for System Admin
 const SystemCompaniesPage = () => {
-  const [token, setToken] = useState(localStorage.getItem('token'));
+  const [token] = useState(localStorage.getItem('token'));
   const [companies, setCompanies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);

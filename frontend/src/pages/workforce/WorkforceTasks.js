@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../api';
 
 // WorkforceTasks - Task Management Page
 const WorkforceTasks = () => {
   const navigate = useNavigate();
-  const [token, setToken] = useState(localStorage.getItem('token'));
+  const [token] = useState(localStorage.getItem('token'));
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [pagination, setPagination] = useState({ total: 0, page: 1, limit: 10, pages: 0 });
@@ -15,7 +15,7 @@ const WorkforceTasks = () => {
     title: '', description: '', taskCategory: 'administrative', priority: 'normal',
     complexityLevel: 1, estimatedEffortMinutes: 60, dueAt: '', assigneeIds: []
   });
-  const [editingId, setEditingId] = useState(null);
+  const [, setEditingId] = useState(null);
 
   const fetchTasks = async () => {
     try {

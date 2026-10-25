@@ -1,10 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useCallback } from 'react';
 import api from '../../api';
 
 // WorkforceEmployees - Employee Management Page
 const WorkforceEmployees = () => {
-  const navigate = useNavigate();
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
   const [pagination, setPagination] = useState({ total: 0, page: 1, limit: 10, pages: 0 });
@@ -16,9 +14,9 @@ const WorkforceEmployees = () => {
     contractedHours: 40, monthlyPerformanceTarget: 0, departmentId: ''
   });
   const [editingId, setEditingId] = useState(null);
-  const [token, setToken] = useState(localStorage.getItem('token'));
+  const [token] = useState(localStorage.getItem('token'));
 
-  const fetchEmployees = async () => {
+  const fetchEmployees = useCallback(async () => {
     try {
       const params = new URLSearchParams();
       if (filters.search) params.set('search', filters.search);
@@ -37,9 +35,9 @@ const WorkforceEmployees = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token, filters.search, filters.status, filters.departmentId, pagination.page, pagination.limit]);
 
-  const fetchDepartments = async () => {
+  const fetchDepartments = useCallback(async () => {
     try {
       const res = await api.get('/analytics/departments', token);
       if (res.success) {
@@ -48,12 +46,12 @@ const WorkforceEmployees = () => {
     } catch (err) {
       console.error('Fetch departments error:', err);
     }
-  };
+  }, [token]);
 
   useEffect(() => {
     fetchEmployees();
     fetchDepartments();
-  }, [token, filters.search, filters.status, filters.departmentId, pagination.page, pagination.limit]);
+  }, [fetchEmployees, fetchDepartments]);
 
   const handleCreate = async (e) => {
     e.preventDefault();

@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import api from '../../api';
 
 // WorkforceMonthly - Monthly Performance Comparison
 const WorkforceMonthly = () => {
-  const [token, setToken] = useState(localStorage.getItem('token'));
+  const [token] = useState(localStorage.getItem('token'));
   const [months, setMonths] = useState([]);
   const [loading, setLoading] = useState(true);
   const [year, setYear] = useState(new Date().getFullYear());
 
-  const fetchMonthly = async () => {
+  const fetchMonthly = useCallback(async () => {
     try {
       const res = await api.get(`/analytics/monthly?year=${year}`, token);
       if (res.success) setMonths(res.data.months);
@@ -17,11 +17,11 @@ const WorkforceMonthly = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [year, token]);
 
   useEffect(() => {
     fetchMonthly();
-  }, [token, year]);
+  }, [fetchMonthly]);
 
   const safePct = (num, den) => den ? ((num / den) * 100).toFixed(2) : '0.00';
 

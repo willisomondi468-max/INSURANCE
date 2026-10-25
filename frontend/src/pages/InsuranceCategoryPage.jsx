@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { PhotoCard, ImageCarousel } from '../components/PhotoComponents';
+import { ImageCarousel } from '../components/PhotoComponents';
 
 /**
  * InsuranceCategoryPage - Individual insurance category page
@@ -244,7 +244,6 @@ const InsuranceCategoryPage = () => {
   const [quoteResult, setQuoteResult] = useState(null);
 
   const catData = CATEGORY_DATA[category] || CATEGORY_DATA.motor;
-  const categoryKey = category.charAt(0).toUpperCase() + category.slice(1);
 
   const handleQuoteChange = (e) => {
     const { name, value, type } = e.target;

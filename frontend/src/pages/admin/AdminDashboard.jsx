@@ -1,15 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import api from '../../api';
 
 // AdminDashboard - Company-level admin dashboard
 // Shows company-specific KPIs, employee attendance, task status, and quick actions
 const AdminDashboard = () => {
-  const [token, setToken] = useState(localStorage.getItem('token'));
+  const [token] = useState(localStorage.getItem('token'));
   const [stats, setStats] = useState(null);
   const [recentTasks, setRecentTasks] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchStats = async () => {
+  const fetchStats = useCallback(async () => {
     try {
       const [companyRes, tasksRes, attRes] = await Promise.all([
         api.get('/company/stats', token),
@@ -27,11 +27,11 @@ const AdminDashboard = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token]);
 
   useEffect(() => {
     fetchStats();
-  }, [token]);
+  }, [fetchStats]);
 
   return (
     <div className="fade-in">

@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import api from '../../api';
 
 // WorkforceNotifications - Notifications Page
 const WorkforceNotifications = () => {
-  const [token, setToken] = useState(localStorage.getItem('token'));
+  const [token] = useState(localStorage.getItem('token'));
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [unreadCount, setUnreadCount] = useState(0);
 
-  const fetchNotifications = async () => {
+  const fetchNotifications = useCallback(async () => {
     try {
       // Use dashboard audit-logs as notification source, or a notifications endpoint
       const res = await api.get('/dashboard/audit-logs', token);
@@ -31,21 +31,11 @@ const WorkforceNotifications = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const markAsRead = async (id) => {
-    try {
-      await api.patch(`/audit-logs/${id}/read`, {}, token);
-      setNotifications(notifications.map(n => n.id === id ? { ...n, isRead: true } : n));
-      setUnreadCount(Math.max(0, unreadCount - 1));
-    } catch (err) {
-      console.error('Mark as read error:', err);
-    }
-  };
+  }, [token]);
 
   useEffect(() => {
     fetchNotifications();
-  }, [token]);
+  }, [fetchNotifications]);
 
   return (
     <div className="fade-in">

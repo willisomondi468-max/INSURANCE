@@ -1,11 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useCallback } from 'react';
 import api from '../../api';
 
 // WorkforceLeaveRequests - Leave Requests Page
 const WorkforceLeaveRequests = () => {
-  const navigate = useNavigate();
-  const [token, setToken] = useState(localStorage.getItem('token'));
   const [leaveRequests, setLeaveRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({ status: '', employeeId: '' });
@@ -14,8 +11,9 @@ const WorkforceLeaveRequests = () => {
     employeeId: '', leaveType: 'annual', startDate: '', endDate: '', reason: ''
   });
   const [employees, setEmployees] = useState([]);
+  const [token] = useState(localStorage.getItem('token'));
 
-  const fetchLeaveRequests = async () => {
+  const fetchLeaveRequests = useCallback(async () => {
     try {
       const params = new URLSearchParams();
       if (filters.status) params.set('status', filters.status);
@@ -27,21 +25,21 @@ const WorkforceLeaveRequests = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token, filters.status, filters.employeeId]);
 
-  const fetchEmployees = async () => {
+  const fetchEmployees = useCallback(async () => {
     try {
       const res = await api.get('/employees', token);
       if (res.success) setEmployees(res.data.employees);
     } catch (err) {
       console.error('Fetch employees error:', err);
     }
-  };
+  }, [token]);
 
   useEffect(() => {
     fetchLeaveRequests();
     fetchEmployees();
-  }, [token, filters.status, filters.employeeId]);
+  }, [fetchLeaveRequests, fetchEmployees]);
 
   const handleCreate = async (e) => {
     e.preventDefault();

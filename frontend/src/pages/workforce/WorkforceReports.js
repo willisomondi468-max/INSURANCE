@@ -3,7 +3,7 @@ import api from '../../api';
 
 // WorkforceReports - Monthly Report Generation and Export
 const WorkforceReports = () => {
-  const [token, setToken] = useState(localStorage.getItem('token'));
+  const [token] = useState(localStorage.getItem('token'));
   const [year, setYear] = useState(new Date().getFullYear());
   const [month, setMonth] = useState(new Date().getMonth() + 1);
   const [loading, setLoading] = useState(false);
@@ -11,12 +11,11 @@ const WorkforceReports = () => {
   const handleGeneratePDF = async () => {
     setLoading(true);
     try {
-      const res = await api.download(
+      await api.download(
         `/reports/monthly?year=${year}&month=${month}&format=pdf`,
         `monthly-report-${year}-${month}.pdf`,
         token
       );
-      // download() triggers browser download automatically
     } catch (err) {
       alert('Failed to generate PDF report: ' + err.message);
     } finally {
@@ -27,7 +26,7 @@ const WorkforceReports = () => {
   const handleGenerateCSV = async () => {
     setLoading(true);
     try {
-      const res = await api.download(
+      await api.download(
         `/reports/monthly?year=${year}&month=${month}&format=csv`,
         `monthly-report-${year}-${month}.csv`,
         token

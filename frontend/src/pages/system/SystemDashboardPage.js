@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import api from '../../api';
 
 // SystemDashboardPage - System-wide overview for System Admin
 const SystemDashboardPage = () => {
-  const [token, setToken] = useState(localStorage.getItem('token'));
+  const [token] = useState(localStorage.getItem('token'));
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchStats = async () => {
+  const fetchStats = useCallback(async () => {
     try {
       const res = await api.get('/system/dashboard', token);
       if (res.success) setStats(res.data);
@@ -16,11 +16,11 @@ const SystemDashboardPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token]);
 
   useEffect(() => {
     fetchStats();
-  }, [token]);
+  }, [fetchStats]);
 
   return (
     <div className="fade-in">
