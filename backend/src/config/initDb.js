@@ -467,6 +467,69 @@ const initializeDatabase = async () => {
     await client.query(`CREATE INDEX IF NOT EXISTS idx_performance_targets_department_id ON performance_targets(department_id);`);
     console.log('✅ Workforce indexes created');
 
+    // ========================================================================
+    // ADDITIONAL TABLES FOR PORTAL MANAGEMENT
+    // ========================================================================
+
+    // Notifications table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS notifications (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        type VARCHAR(20) DEFAULT 'in_app',
+        title VARCHAR(255) NOT NULL,
+        message TEXT NOT NULL,
+        is_read BOOLEAN DEFAULT false,
+        entity_type VARCHAR(50),
+        entity_id UUID,
+        action_url VARCHAR(500),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+    console.log('✅ Notifications table created');
+    await client.query(`CREATE INDEX IF NOT EXISTS idx_notifications_user_id ON notifications(user_id);`);
+    await client.query(`CREATE INDEX IF NOT EXISTS idx_notifications_is_read ON notifications(is_read);`);
+    await client.query(`CREATE INDEX IF NOT EXISTS idx_notifications_created_at ON notifications(created_at);`);
+
+    // Customer documents table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS customer_documents (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        customer_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        document_type VARCHAR(50) NOT NULL,
+        document_name VARCHAR(255) NOT NULL,
+        file_path TEXT NOT NULL,
+        file_size INTEGER,
+        mime_type VARCHAR(100),
+        uploaded_by UUID REFERENCES users(id) ON DELETE SET NULL,
+        is_verified BOOLEAN DEFAULT false,
+        verified_by UUID REFERENCES users(id) ON DELETE SET NULL,
+        verified_at TIMESTAMP,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+    console.log('✅ Customer documents table created');
+    await client.query(`CREATE INDEX IF NOT EXISTS idx_customer_documents_customer_id ON customer_documents(customer_id);`);
+    await client.query(`CREATE INDEX IF NOT EXISTS idx_customer_documents_type ON customer_documents(document_type);`);
+    await client.query(`CREATE INDEX IF NOT EXISTS idx_customer_documents_verified ON customer_documents(is_verified);`);
+
+    // Refresh tokens table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS refresh_tokens (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        token TEXT NOT NULL,
+        expires_at TIMESTAMP NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+    console.log('✅ Refresh tokens table created');
+    await client.query(`CREATE INDEX IF NOT EXISTS idx_refresh_tokens_user_id ON refresh_tokens(user_id);`);
+    await client.query(`CREATE INDEX IF NOT EXISTS idx_refresh_tokens_token ON refresh_tokens(token);`);
+    await client.query(`CREATE INDEX IF NOT EXISTS idx_refresh_tokens_expires_at ON refresh_tokens(expires_at);`);
+
     // Insert default departments
     await client.query(`
       INSERT INTO departments (name, description, status, monthly_target)

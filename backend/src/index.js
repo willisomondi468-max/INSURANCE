@@ -31,6 +31,10 @@ const analyticsRoutes = require('./routes/analytics');
 const reportRoutes = require('./routes/reports');
 const leaveRequestRoutes = require('./routes/leaveRequests');
 const systemRoutes = require('./routes/system');
+const staffCustomerRoutes = require('./routes/staffCustomers');
+const managerRoutes = require('./routes/manager');
+const adminRoutes = require('./routes/admin');
+const notificationRoutes = require('./routes/notifications');
 
 // Security middleware
 app.use(helmet());
@@ -83,6 +87,10 @@ app.use('/api/reports', dashboardRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/leave-requests', leaveRequestRoutes);
 app.use('/api/system', systemRoutes);
+app.use('/api/staff/customers', staffCustomerRoutes);
+app.use('/api/manager', managerRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 // Health check endpoint
 app.get('/api/health', async (req, res) => {

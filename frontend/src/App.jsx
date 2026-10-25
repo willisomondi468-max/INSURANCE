@@ -47,6 +47,15 @@ const ProviderCustomersPage = React.lazy(() => import('./pages/provider/Provider
 const SystemDashboardPage = React.lazy(() => import('./pages/system/SystemDashboardPage'));
 const SystemCompaniesPage = React.lazy(() => import('./pages/system/SystemCompaniesPage'));
 
+// Staff Portal Pages
+const StaffCustomerList = React.lazy(() => import('./pages/staff/StaffCustomerList'));
+
+// Manager Portal Pages
+const ManagerDashboardPage = React.lazy(() => import('./pages/manager/ManagerDashboard'));
+
+// Admin Portal Pages
+const AdminPortalDashboardPage = React.lazy(() => import('./pages/admin/AdminPortalDashboard'));
+
 // Pages (extracted from App.js)
 const LoginPage = React.lazy(() => import('./pages/Login'));
 const RegisterPage = React.lazy(() => import('./pages/Register'));
@@ -113,8 +122,10 @@ const Sidebar = ({ role, onLogout }) => {
     system_admin: [
       { icon: Icons.Home, label: 'System Dashboard', path: '/system/dashboard', section: 'System' },
       { icon: Icons.Building, label: 'Companies', path: '/system/companies', section: 'System' },
+      { icon: Icons.Shield, label: 'Admin Portal', path: '/admin/portal', section: 'Admin' },
       { icon: Icons.Shield, label: 'Plans', path: '/admin/plans', section: 'Admin' },
       { icon: Icons.Users, label: 'Customers', path: '/admin/customers', section: 'Admin' },
+      { icon: Icons.Users, label: 'Staff Customers', path: '/staff/customers', section: 'Staff' },
       { icon: Icons.FileText, label: 'Policies', path: '/admin/policies', section: 'Admin' },
       { icon: Icons.BarChart, label: 'Claims', path: '/admin/claims', section: 'Admin' },
       { icon: Icons.CreditCard, label: 'Payments', path: '/admin/payments', section: 'Admin' },
@@ -129,7 +140,9 @@ const Sidebar = ({ role, onLogout }) => {
     ],
     company_admin: [
       { icon: Icons.Home, label: 'Company Dashboard', path: '/admin', section: 'Company' },
+      { icon: Icons.Shield, label: 'Admin Portal', path: '/admin/portal', section: 'Admin' },
       { icon: Icons.Users, label: 'Customers', path: '/admin/customers', section: 'Company' },
+      { icon: Icons.Users, label: 'Staff Customers', path: '/staff/customers', section: 'Staff' },
       { icon: Icons.FileText, label: 'Policies', path: '/admin/policies', section: 'Company' },
       { icon: Icons.BarChart, label: 'Claims', path: '/admin/claims', section: 'Company' },
       { icon: Icons.CreditCard, label: 'Payments', path: '/admin/payments', section: 'Company' },
@@ -173,7 +186,8 @@ const Sidebar = ({ role, onLogout }) => {
     company_admin: 'Company Administration',
     employee: 'Employee Portal',
     customer: 'Customer Portal',
-    provider: 'Service Provider'
+    provider: 'Service Provider',
+    staff: 'Staff Portal'
   };
 
   return (
@@ -285,6 +299,33 @@ const App = () => {
             <ProtectedRoute roles={['company_admin', 'system_admin']}>
               <Layout role="company_admin">
                 <AdminDashboard />
+              </Layout>
+            </ProtectedRoute>
+          } />
+
+          {/* Staff Portal Routes */}
+          <Route path="/staff/customers" element={
+            <ProtectedRoute roles={['system_admin', 'company_admin', 'admin', 'hr_manager', 'department_manager', 'supervisor', 'employee', 'senior_management']}>
+              <Layout role="company_admin">
+                <StaffCustomerList />
+              </Layout>
+            </ProtectedRoute>
+          } />
+
+          {/* Manager Portal Routes */}
+          <Route path="/manager/dashboard" element={
+            <ProtectedRoute roles={['department_manager', 'hr_manager', 'system_admin', 'company_admin', 'admin', 'senior_management']}>
+              <Layout role="company_admin">
+                <ManagerDashboardPage />
+              </Layout>
+            </ProtectedRoute>
+          } />
+
+          {/* Admin Portal Routes */}
+          <Route path="/admin/portal" element={
+            <ProtectedRoute roles={['system_admin', 'company_admin', 'admin']}>
+              <Layout role="company_admin">
+                <AdminPortalDashboardPage />
               </Layout>
             </ProtectedRoute>
           } />
