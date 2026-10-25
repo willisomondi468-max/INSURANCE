@@ -7,14 +7,16 @@ import { ImageCarousel } from '../components/PhotoComponents';
  * Supports: motor, property, aviation, life, health, marine, etc.
  * Features photographic hero, coverage options, quote forms, benefits
  */
+const img = (name) => `${process.env.PUBLIC_URL || ''}/images/${name}`;
+
 const CATEGORY_DATA = {
   motor: {
     name: 'Motor Insurance',
     tagline: 'Comprehensive protection for your vehicle',
     heroImages: [
-      { url: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=1600&q=80', alt: 'Luxury SUV exterior', headline: 'Drive with Complete Confidence', subheadline: 'From accidents to theft, we cover every mile of your journey.', primaryButton: 'Get Motor Quote', secondaryButton: 'File a Claim', onPrimary: null, onSecondary: null },
-      { url: 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=1600&q=80', alt: 'Vehicle inspection', headline: 'Accident Protection', subheadline: 'Fast claims processing and approved repair networks nationwide.', primaryButton: 'Start Claim', secondaryButton: 'View Plans', onPrimary: null, onSecondary: null },
-      { url: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=1600&q=80', alt: 'Car on scenic road', headline: 'Third-Party Liability', subheadline: 'Legal protection and coverage for damage to other vehicles and property.', primaryButton: 'Learn More', secondaryButton: 'Get Quote', onPrimary: null, onSecondary: null }
+      { url: img('hero-motor.jpg'), alt: 'Car on road', headline: 'Drive with Complete Confidence', subheadline: 'From accidents to theft, we cover every mile of your journey.', primaryButton: 'Get Motor Quote', secondaryButton: 'File a Claim', onPrimary: null, onSecondary: null },
+      { url: img('card-motor.jpg'), alt: 'Vehicle inspection', headline: 'Accident Protection', subheadline: 'Fast claims processing and approved repair networks nationwide.', primaryButton: 'Start Claim', secondaryButton: 'View Plans', onPrimary: null, onSecondary: null },
+      { url: img('hero-motor.jpg'), alt: 'Car on scenic road', headline: 'Third-Party Liability', subheadline: 'Legal protection and coverage for damage to other vehicles and property.', primaryButton: 'Learn More', secondaryButton: 'Get Quote', onPrimary: null, onSecondary: null }
     ],
     coverages: [
       { title: 'Accidental Damage', description: 'Coverage for repairs after collisions, fire, or natural disasters.', icon: '🛡️' },
@@ -38,8 +40,8 @@ const CATEGORY_DATA = {
     name: 'Property Insurance',
     tagline: 'Protect your home and real estate',
     heroImages: [
-      { url: 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=1600&q=80', alt: 'Modern residential house', headline: 'Home Protection, Simplified', subheadline: 'From fire to flood, your home is covered against life\'s unexpected events.', primaryButton: 'Get Property Quote', secondaryButton: 'File a Claim', onPrimary: null, onSecondary: null },
-      { url: 'https://images.unsplash.com/photo-1486325212027-8081e4852555?w=1600&q=80', alt: 'Commercial glass buildings', headline: 'Commercial Property', subheadline: 'Office buildings, retail spaces, and commercial real estate coverage.', primaryButton: 'Commercial Plans', secondaryButton: 'Get Quote', onPrimary: null, onSecondary: null }
+      { url: img('hero-business.jpg'), alt: 'Modern residential house', headline: 'Home Protection, Simplified', subheadline: 'From fire to flood, your home is covered against life\'s unexpected events.', primaryButton: 'Get Property Quote', secondaryButton: 'File a Claim', onPrimary: null, onSecondary: null },
+      { url: img('card-property.jpg'), alt: 'Commercial glass buildings', headline: 'Commercial Property', subheadline: 'Office buildings, retail spaces, and commercial real estate coverage.', primaryButton: 'Commercial Plans', secondaryButton: 'Get Quote', onPrimary: null, onSecondary: null }
     ],
     coverages: [
       { title: 'Fire & Smoke Damage', description: 'Full coverage for fire, smoke, and explosion damage.', icon: '🔥' },
@@ -63,8 +65,8 @@ const CATEGORY_DATA = {
     name: 'Aviation Insurance',
     tagline: 'Protected at every altitude',
     heroImages: [
-      { url: 'https://images.unsplash.com/photo-1431567314275-c8e7e1123b05?w=1600&q=80', alt: 'Commercial airplane flying', headline: 'Aircraft Coverage, Elevated', subheadline: 'Specialized insurance for passenger aircraft, private jets, and helicopters.', primaryButton: 'Get Aviation Quote', secondaryButton: 'File a Claim', onPrimary: null, onSecondary: null },
-      { url: 'https://images.unsplash.com/photo-1436491865332-7a61a110cc05?w=1600&q=80', alt: 'Private jet airport', headline: 'Aviation Liability', subheadline: 'Third-party liability, passenger protection, and hull coverage.', primaryButton: 'View Plans', secondaryButton: 'Get Quote', onPrimary: null, onSecondary: null }
+      { url: img('hero-aviation.jpg'), alt: 'Commercial airplane flying', headline: 'Aircraft Coverage, Elevated', subheadline: 'Specialized insurance for passenger aircraft, private jets, and helicopters.', primaryButton: 'Get Aviation Quote', secondaryButton: 'File a Claim', onPrimary: null, onSecondary: null },
+      { url: img('hero-aviation.jpg'), alt: 'Private jet airport', headline: 'Aviation Liability', subheadline: 'Third-party liability, passenger protection, and hull coverage.', primaryButton: 'View Plans', secondaryButton: 'Get Quote', onPrimary: null, onSecondary: null }
     ],
     coverages: [
       { title: 'Hull Coverage', description: 'Physical damage to the aircraft itself.', icon: '✈️' },
@@ -88,8 +90,8 @@ const CATEGORY_DATA = {
     name: 'Life Insurance',
     tagline: 'Financial security for your loved ones',
     heroImages: [
-      { url: 'https://images.unsplash.com/photo-1564494688057-614178e7eb8d?w=1600&q=80', alt: 'Happy family', headline: 'Family Protection, Guaranteed', subheadline: 'Term and whole life policies that secure your family\'s future.', primaryButton: 'Get Life Quote', secondaryButton: 'File a Claim', onPrimary: null, onSecondary: null },
-      { url: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=1600&q=80', alt: 'Elderly couple', headline: 'Legacy Planning', subheadline: 'Whole life insurance with cash value and estate protection.', primaryButton: 'View Plans', secondaryButton: 'Get Quote', onPrimary: null, onSecondary: null }
+      { url: img('hero-life.jpg'), alt: 'Happy family', headline: 'Family Protection, Guaranteed', subheadline: 'Term and whole life policies that secure your family\'s future.', primaryButton: 'Get Life Quote', secondaryButton: 'File a Claim', onPrimary: null, onSecondary: null },
+      { url: img('hero-life.jpg'), alt: 'Elderly couple', headline: 'Legacy Planning', subheadline: 'Whole life insurance with cash value and estate protection.', primaryButton: 'View Plans', secondaryButton: 'Get Quote', onPrimary: null, onSecondary: null }
     ],
     coverages: [
       { title: 'Term Life', description: 'Affordable coverage for a specific period.', icon: '📄' },
@@ -113,8 +115,8 @@ const CATEGORY_DATA = {
     name: 'Health Insurance',
     tagline: 'Comprehensive healthcare coverage',
     heroImages: [
-      { url: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=1600&q=80', alt: 'Doctor consulting patient', headline: 'Healthcare, Simplified', subheadline: 'Individual, family, and group health insurance with nationwide provider network.', primaryButton: 'Get Health Quote', secondaryButton: 'File a Claim', onPrimary: null, onSecondary: null },
-      { url: 'https://images.unsplash.com/photo-1551089787-d7473219896b?w=1600&q=80', alt: 'Hospital corridor', headline: 'Hospitalization Coverage', subheadline: 'Inpatient care, surgeries, and emergency treatment covered.', primaryButton: 'View Plans', secondaryButton: 'Get Quote', onPrimary: null, onSecondary: null }
+      { url: img('card-health.jpg'), alt: 'Doctor consulting patient', headline: 'Healthcare, Simplified', subheadline: 'Individual, family, and group health insurance with nationwide provider network.', primaryButton: 'Get Health Quote', secondaryButton: 'File a Claim', onPrimary: null, onSecondary: null },
+      { url: img('card-health.jpg'), alt: 'Hospital corridor', headline: 'Hospitalization Coverage', subheadline: 'Inpatient care, surgeries, and emergency treatment covered.', primaryButton: 'View Plans', secondaryButton: 'Get Quote', onPrimary: null, onSecondary: null }
     ],
     coverages: [
       { title: 'Hospitalization', description: 'Room, board, and nursing care.', icon: '🏥' },
@@ -138,8 +140,8 @@ const CATEGORY_DATA = {
     name: 'Marine Insurance',
     tagline: 'Protected across international waters',
     heroImages: [
-      { url: 'https://images.unsplash.com/photo-1517570719329-777ac98a3526?w=1600&q=80', alt: 'Cargo ship', headline: 'Marine Cargo Protection', subheadline: 'Coverage for goods in transit across oceans and inland waterways.', primaryButton: 'Get Marine Quote', secondaryButton: 'File a Claim', onPrimary: null, onSecondary: null },
-      { url: 'https://images.unsplash.com/photo-1477959856761-2397cf29ade0?w=1600&q=80', alt: 'Yacht at marina', headline: 'Yacht & Pleasure Craft', subheadline: 'Recreational boats, yachts, and personal watercraft coverage.', primaryButton: 'View Plans', secondaryButton: 'Get Quote', onPrimary: null, onSecondary: null }
+      { url: img('card-marine.jpg'), alt: 'Cargo ship', headline: 'Marine Cargo Protection', subheadline: 'Coverage for goods in transit across oceans and inland waterways.', primaryButton: 'Get Marine Quote', secondaryButton: 'File a Claim', onPrimary: null, onSecondary: null },
+      { url: img('card-marine.jpg'), alt: 'Yacht at marina', headline: 'Yacht & Pleasure Craft', subheadline: 'Recreational boats, yachts, and personal watercraft coverage.', primaryButton: 'View Plans', secondaryButton: 'Get Quote', onPrimary: null, onSecondary: null }
     ],
     coverages: [
       { title: 'Cargo Damage', description: 'Loss or damage to goods during transit.', icon: '📦' },
@@ -163,8 +165,8 @@ const CATEGORY_DATA = {
     name: 'Business Insurance',
     tagline: 'Safeguard your enterprise',
     heroImages: [
-      { url: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=1600&q=80', alt: 'Modern office building', headline: 'Business Protection, Elevated', subheadline: 'Commercial insurance for offices, factories, and entrepreneurs.', primaryButton: 'Get Business Quote', secondaryButton: 'File a Claim', onPrimary: null, onSecondary: null },
-      { url: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1600&q=80', alt: 'Factory warehouse', headline: 'Commercial Property', subheadline: 'Building, equipment, and inventory protection.', primaryButton: 'View Plans', secondaryButton: 'Get Quote', onPrimary: null, onSecondary: null }
+      { url: img('hero-business.jpg'), alt: 'Modern office building', headline: 'Business Protection, Elevated', subheadline: 'Commercial insurance for offices, factories, and entrepreneurs.', primaryButton: 'Get Business Quote', secondaryButton: 'File a Claim', onPrimary: null, onSecondary: null },
+      { url: img('card-property.jpg'), alt: 'Factory warehouse', headline: 'Commercial Property', subheadline: 'Building, equipment, and inventory protection.', primaryButton: 'View Plans', secondaryButton: 'Get Quote', onPrimary: null, onSecondary: null }
     ],
     coverages: [
       { title: 'General Liability', description: 'Third-party bodily injury and property damage.', icon: '⚖️' },
@@ -188,8 +190,8 @@ const CATEGORY_DATA = {
     name: 'Agricultural Insurance',
     tagline: 'Protecting farms and livestock',
     heroImages: [
-      { url: 'https://images.unsplash.com/photo-1625246223716-ec057e9e9d2b?w=1600&q=80', alt: 'Farm tractor', headline: 'Farm Protection, Rooted in Trust', subheadline: 'Crop, livestock, and equipment coverage for agricultural businesses.', primaryButton: 'Get Farm Quote', secondaryButton: 'File a Claim', onPrimary: null, onSecondary: null },
-      { url: 'https://images.unsplash.com/photo-1602941816816-929c829a90c8?w=1600&q=80', alt: 'Livestock barn', headline: 'Livestock Coverage', subheadline: 'Protection for cattle, poultry, and other farm animals.', primaryButton: 'View Plans', secondaryButton: 'Get Quote', onPrimary: null, onSecondary: null }
+      { url: img('card-property.jpg'), alt: 'Farm tractor', headline: 'Farm Protection, Rooted in Trust', subheadline: 'Crop, livestock, and equipment coverage for agricultural businesses.', primaryButton: 'Get Farm Quote', secondaryButton: 'File a Claim', onPrimary: null, onSecondary: null },
+      { url: img('card-property.jpg'), alt: 'Livestock barn', headline: 'Livestock Coverage', subheadline: 'Protection for cattle, poultry, and other farm animals.', primaryButton: 'View Plans', secondaryButton: 'Get Quote', onPrimary: null, onSecondary: null }
     ],
     coverages: [
       { title: 'Crop Insurance', description: 'Yield loss from weather, pests, or disease.', icon: '🌾' },
@@ -213,8 +215,8 @@ const CATEGORY_DATA = {
     name: 'Personal Accident Insurance',
     tagline: 'Coverage when accidents happen',
     heroImages: [
-      { url: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=1600&q=80', alt: 'Construction worker safety', headline: 'Accident Protection, Guaranteed', subheadline: 'Financial support when accidents disrupt your life.', primaryButton: 'Get Accident Quote', secondaryButton: 'File a Claim', onPrimary: null, onSecondary: null },
-      { url: 'https://images.unsplash.com/photo-1551774653-f04577079c7c?w=1600&q=80', alt: 'First aid kit', headline: 'Emergency Assistance', subheadline: 'Emergency medical evacuation and hospitalization benefits.', primaryButton: 'View Plans', secondaryButton: 'Get Quote', onPrimary: null, onSecondary: null }
+      { url: img('hero-life.jpg'), alt: 'Construction worker safety', headline: 'Accident Protection, Guaranteed', subheadline: 'Financial support when accidents disrupt your life.', primaryButton: 'Get Accident Quote', secondaryButton: 'File a Claim', onPrimary: null, onSecondary: null },
+      { url: img('hero-life.jpg'), alt: 'First aid kit', headline: 'Emergency Assistance', subheadline: 'Emergency medical evacuation and hospitalization benefits.', primaryButton: 'View Plans', secondaryButton: 'Get Quote', onPrimary: null, onSecondary: null }
     ],
     coverages: [
       { title: 'Accidental Death', description: 'Lump sum benefit to beneficiaries.', icon: '🕯️' },

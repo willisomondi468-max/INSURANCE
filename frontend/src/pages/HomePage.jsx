@@ -102,7 +102,7 @@ const HomePage = () => {
       onClick: () => navigate('/insurance/life')
     },
     {
-      imageUrl: img('card-motor.jpg'),
+      imageUrl: img('hero-motor.jpg'),
       category: 'Motor Insurance',
       title: 'Auto & Motor Coverage',
       description: 'Comprehensive protection for cars, SUVs, and commercial vehicles against accidents and theft.',
