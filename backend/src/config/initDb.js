@@ -99,7 +99,7 @@ const initializeDatabase = async () => {
         END IF;
       END
       $$;
-    ).catch(e => console.log('employees add company_id:', e.message));
+    `).catch(e => console.log('employees add company_id:', e.message));
 
     // ========================================================================
     // MULTI-TENANCY: Companies Table

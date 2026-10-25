@@ -1,0 +1,66 @@
+version: '3.8'
+
+services:
+  # Backend API service
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: insurance-backend
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      - NODE_ENV=production
+      - PORT=5000
+      - DATABASE_URL=${DATABASE_URL}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
+      - JWT_EXPIRE=15m
+      - JWT_REFRESH_EXPIRE=7d
+      - ADMIN_EMAIL=${ADMIN_EMAIL:-admin@insurance.com}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin123}
+      - SYSADMIN_EMAIL=${SYSADMIN_EMAIL:-system@insuravault.com}
+      - SYSADMIN_PASSWORD=${SYSADMIN_PASSWORD:-sysadmin123}
+      - SMTP_HOST=${SMTP_HOST}
+      - SMTP_PORT=${SMTP_PORT}
+      - SMTP_USER=${SMTP_USER}
+      - SMTP_PASS=${SMTP_PASS}
+      - TWILIO_ACCOUNT_SID=${TWILIO_ACCOUNT_SID}
+      - TWILIO_AUTH_TOKEN=${TWILIO_AUTH_TOKEN}
+      - TWILIO_PHONE_NUMBER=${TWILIO_PHONE_NUMBER}
+      - UPLOAD_PATH=./uploads
+      - MAX_FILE_SIZE=10485760
+    volumes:
+      - ./backend/uploads:/app/uploads
+    depends_on:
+      - db
+
+  # Database service (PostgreSQL)
+  db:
+    image: postgres:16-alpine
+    container_name: insurance-db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=${DB_USER:-postgres}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-localdev123}
+      - POSTGRES_DB=${DB_NAME:-insurance}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  # Frontend service
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: insurance-frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:

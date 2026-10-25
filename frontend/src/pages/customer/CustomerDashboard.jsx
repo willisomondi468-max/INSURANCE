@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../App';
+import { useAuth } from '../../components/AuthContext';
 import api from '../../api.js';
 import Icons from '../../components/Icons';
 

@@ -9,7 +9,7 @@ import {
   Loading,
   PageHeader
 } from '../../components/ui';
-import { useAuth } from '../../App';
+import { useAuth } from '../../components/AuthContext';
 
 /**
  * Admin -> Settings
