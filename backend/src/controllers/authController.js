@@ -1,0 +1,486 @@
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const { v4: uuidv4 } = require('uuid');
+const { query } = require('../config/db');
+const { sendEmail } = require('../services/emailService');
+const { sendSMS } = require('../services/smsService');
+
+/**
+ * Generate access and refresh tokens
+ * @param {Object} user - User object
+ * @returns {Object} Tokens
+ */
+const generateTokens = async (user) => {
+  // Access token (15 minutes)
+  const accessToken = jwt.sign(
+    { userId: user.id, email: user.email, role: user.role },
+    process.env.JWT_SECRET,
+    { expiresIn: process.env.JWT_EXPIRE || '15m' }
+  );
+
+  // Refresh token (7 days)
+  const refreshToken = jwt.sign(
+    { userId: user.id },
+    process.env.JWT_REFRESH_SECRET,
+    { expiresIn: process.env.JWT_REFRESH_EXPIRE || '7d' }
+  );
+
+  // Store refresh token in database
+  const expiresAt = new Date();
+  expiresAt.setDate(expiresAt.getDate() + 7);
+
+  await query(
+    'INSERT INTO refresh_tokens (user_id, token, expires_at) VALUES ($1, $2, $3)',
+    [user.id, refreshToken, expiresAt]
+  );
+
+  return { accessToken, refreshToken };
+};
+
+/**
+ * Register a new user (Customer)
+ * POST /api/auth/register
+ */
+const register = async (req, res) => {
+  const client = await require('../config/db').getClient();
+  
+  try {
+    await client.query('BEGIN');
+
+    const { email, password, phone, fullName, idNumber, address, dateOfBirth } = req.body;
+
+    // Check if user already exists
+    const existingUser = await client.query(
+      'SELECT id, email FROM users WHERE email = $1',
+      [email]
+    );
+
+    if (existingUser.rows.length > 0) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({
+        success: false,
+        message: 'Email already registered'
+      });
+    }
+
+    // Hash password
+    const salt = await bcrypt.genSalt(10);
+    const passwordHash = await bcrypt.hash(password, salt);
+
+    // Create user
+    const userResult = await client.query(
+      `INSERT INTO users (email, password_hash, role, phone) 
+       VALUES ($1, $2, 'customer', $3) 
+       RETURNING id, email, role, phone, created_at`,
+      [email, passwordHash, phone]
+    );
+
+    const user = userResult.rows[0];
+
+    // Create customer details
+    await client.query(
+      `INSERT INTO customer_details (user_id, full_name, id_number, phone, email, address, date_of_birth)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+      [user.id, fullName, idNumber, phone, email, address, dateOfBirth]
+    );
+
+    // Create audit log
+    await client.query(
+      `INSERT INTO audit_logs (user_id, action, entity_type, details, ip_address)
+       VALUES ($1, 'register', 'user', $2, $3)`,
+      [user.id, JSON.stringify({ email }), req.ip]
+    );
+
+    await client.query('COMMIT');
+
+    // Generate tokens
+    const tokens = await generateTokens(user);
+
+    // Send welcome email
+    try {
+      await sendEmail(email, 'Welcome to Insurance Management System', 'welcome', { 
+        name: fullName 
+      });
+    } catch (emailError) {
+      console.log('Email sending failed:', emailError.message);
+    }
+
+    res.status(201).json({
+      success: true,
+      message: 'Registration successful',
+      data: {
+        user: {
+          id: user.id,
+          email: user.email,
+          role: user.role,
+          phone: user.phone
+        },
+        ...tokens
+      }
+    });
+  } catch (error) {
+    await client.query('ROLLBACK');
+    console.error('Registration error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Registration failed. Please try again.'
+    });
+  } finally {
+    client.release();
+  }
+};
+
+/**
+ * Login user
+ * POST /api/auth/login
+ */
+const login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    // Find user
+    const result = await query(
+      `SELECT u.id, u.email, u.password_hash, u.role, u.phone, u.is_active, u.created_at,
+              cd.full_name, cd.id_number
+       FROM users u
+       LEFT JOIN customer_details cd ON u.id = cd.user_id
+       WHERE u.email = $1`,
+      [email]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid email or password'
+      });
+    }
+
+    const user = result.rows[0];
+
+    // Check if user is active
+    if (!user.is_active) {
+      return res.status(403).json({
+        success: false,
+        message: 'Account is deactivated. Please contact support.'
+      });
+    }
+
+    // Verify password
+    const isMatch = await bcrypt.compare(password, user.password_hash);
+    if (!isMatch) {
+      // Log failed login attempt
+      await query(
+        `INSERT INTO audit_logs (user_id, action, entity_type, details, ip_address)
+         VALUES ($1, 'login_failed', 'user', $2, $3)`,
+        [user.id, JSON.stringify({ email }), req.ip]
+      );
+      
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid email or password'
+      });
+    }
+
+    // Generate tokens
+    const tokens = await generateTokens(user);
+
+    // Log successful login
+    await query(
+      `INSERT INTO audit_logs (user_id, action, entity_type, details, ip_address)
+       VALUES ($1, 'login', 'user', $2, $3)`,
+      [user.id, JSON.stringify({ email }), req.ip]
+    );
+
+    // Get customer details if exists
+    let customerDetails = null;
+    if (user.role === 'customer') {
+      const cdResult = await query(
+        'SELECT * FROM customer_details WHERE user_id = $1',
+        [user.id]
+      );
+      customerDetails = cdResult.rows[0];
+    }
+
+    res.json({
+      success: true,
+      message: 'Login successful',
+      data: {
+        user: {
+          id: user.id,
+          email: user.email,
+          role: user.role,
+          phone: user.phone,
+          fullName: customerDetails?.full_name || null
+        },
+        customerDetails,
+        ...tokens
+      }
+    });
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Login failed. Please try again.'
+    });
+  }
+};
+
+/**
+ * Refresh access token
+ * POST /api/auth/refresh-token
+ */
+const refreshToken = async (req, res) => {
+  try {
+    const { refreshToken } = req.body;
+
+    if (!refreshToken) {
+      return res.status(400).json({
+        success: false,
+        message: 'Refresh token is required'
+      });
+    }
+
+    // Verify refresh token
+    const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+
+    // Check if token exists in database
+    const tokenResult = await query(
+      'SELECT * FROM refresh_tokens WHERE token = $1 AND user_id = $2 AND expires_at > NOW()',
+      [refreshToken, decoded.userId]
+    );
+
+    if (tokenResult.rows.length === 0) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid or expired refresh token'
+      });
+    }
+
+    // Get user
+    const userResult = await query(
+      'SELECT id, email, role, phone, is_active FROM users WHERE id = $1',
+      [decoded.userId]
+    );
+
+    if (userResult.rows.length === 0 || !userResult.rows[0].is_active) {
+      return res.status(401).json({
+        success: false,
+        message: 'User not found or inactive'
+      });
+    }
+
+    const user = userResult.rows[0];
+
+    // Delete old refresh token
+    await query('DELETE FROM refresh_tokens WHERE token = $1', [refreshToken]);
+
+    // Generate new tokens
+    const tokens = await generateTokens(user);
+
+    res.json({
+      success: true,
+      message: 'Token refreshed successfully',
+      data: tokens
+    });
+  } catch (error) {
+    console.error('Refresh token error:', error);
+    res.status(401).json({
+      success: false,
+      message: 'Invalid or expired refresh token'
+    });
+  }
+};
+
+/**
+ * Logout user
+ * POST /api/auth/logout
+ */
+const logout = async (req, res) => {
+  try {
+    const { refreshToken } = req.body;
+
+    if (refreshToken) {
+      await query('DELETE FROM refresh_tokens WHERE token = $1', [refreshToken]);
+    }
+
+    // Log logout
+    if (req.user) {
+      await query(
+        `INSERT INTO audit_logs (user_id, action, entity_type, details, ip_address)
+         VALUES ($1, 'logout', 'user', $2, $3)`,
+        [req.user.id, JSON.stringify({ email: req.user.email }), req.ip]
+      );
+    }
+
+    res.json({
+      success: true,
+      message: 'Logout successful'
+    });
+  } catch (error) {
+    console.error('Logout error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Logout failed'
+    });
+  }
+};
+
+/**
+ * Check if customer details exist
+ * POST /api/auth/check-existence
+ */
+const checkExistence = async (req, res) => {
+  try {
+    const { idNumber, phone } = req.body;
+
+    if (!idNumber && !phone) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide ID number or phone number'
+      });
+    }
+
+    // Query customer details
+    let queryText = `
+      SELECT cd.*, u.email, u.phone as user_phone, u.is_active
+      FROM customer_details cd
+      JOIN users u ON cd.user_id = u.id
+      WHERE 1=1
+    `;
+    const queryParams = [];
+
+    if (idNumber) {
+      queryParams.push(idNumber);
+      queryText += ` AND cd.id_number = $${queryParams.length}`;
+    }
+
+    if (phone) {
+      queryParams.push(phone);
+      queryText += ` OR cd.phone = $${queryParams.length}`;
+    }
+
+    const result = await query(queryText, queryParams);
+
+    if (result.rows.length > 0) {
+      const customer = result.rows[0];
+      return res.json({
+        success: true,
+        exists: true,
+        data: {
+          id: customer.id,
+          userId: customer.user_id,
+          fullName: customer.full_name,
+          idNumber: customer.id_number,
+          phone: customer.phone,
+          email: customer.email,
+          address: customer.address,
+          dateOfBirth: customer.date_of_birth,
+          isVerified: customer.is_verified,
+          isActive: customer.is_active
+        }
+      });
+    }
+
+    res.json({
+      success: true,
+      exists: false,
+      data: null
+    });
+  } catch (error) {
+    console.error('Check existence error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to check customer existence'
+    });
+  }
+};
+
+/**
+ * Confirm customer details
+ * POST /api/auth/confirm-details
+ */
+const confirmDetails = async (req, res) => {
+  try {
+    const { customerId, isConfirmed } = req.body;
+
+    if (!customerId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Customer ID is required'
+      });
+    }
+
+    if (isConfirmed) {
+      // Get customer details and proceed to create user account
+      const customerResult = await query(
+        'SELECT * FROM customer_details WHERE id = $1',
+        [customerId]
+      );
+
+      if (customerResult.rows.length === 0) {
+        return res.status(404).json({
+          success: false,
+          message: 'Customer not found'
+        });
+      }
+
+      const customer = customerResult.rows[0];
+
+      // Check if user already exists
+      if (customer.user_id) {
+        return res.json({
+          success: true,
+          message: 'Customer details confirmed. Please login.',
+          data: { hasAccount: true }
+        });
+      }
+
+      // Return customer details for registration
+      res.json({
+        success: true,
+        message: 'Customer details confirmed',
+        data: {
+          hasAccount: false,
+          customer: {
+            fullName: customer.full_name,
+            idNumber: customer.id_number,
+            phone: customer.phone,
+            email: customer.email,
+            address: customer.address,
+            dateOfBirth: customer.date_of_birth
+          }
+        }
+      });
+    } else {
+      // Allow update - return editable form
+      const customerResult = await query(
+        'SELECT * FROM customer_details WHERE id = $1',
+        [customerId]
+      );
+
+      res.json({
+        success: true,
+        message: 'Please update incorrect details',
+        data: {
+          requiresUpdate: true,
+          customer: customerResult.rows[0]
+        }
+      });
+    }
+  } catch (error) {
+    console.error('Confirm details error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to confirm details'
+    });
+  }
+};
+
+module.exports = {
+  register,
+  login,
+  refreshToken,
+  logout,
+  checkExistence,
+  confirmDetails
+};

@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+
+# Builds
+frontend/build/
+dist/
+
+# Environment files (contain secrets)
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Logs
+*.log
+logs/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Test scratch files
+test-check.json
+test-login.json
+backend/check-tables-local.js
+backend/test-emp.js
+backend/test-end-break.js
+backend/server.out.log
+
+# Agent workspace
+.kilo/
