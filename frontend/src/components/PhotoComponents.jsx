@@ -129,7 +129,7 @@ const ImageCarousel = ({
               style={{
                 position: 'absolute',
                 inset: 0,
-                background: 'linear-gradient(135deg, rgba(8, 27, 51, 0.85) 0%, rgba(15, 42, 74, 0.65) 50%, rgba(23, 105, 255, 0.35) 100%)',
+                background: 'linear-gradient(135deg, rgba(8, 27, 51, 0.5) 0%, rgba(15, 42, 74, 0.3) 50%, rgba(23, 105, 255, 0.15) 100%)',
                 zIndex: 1
               }}
             />
