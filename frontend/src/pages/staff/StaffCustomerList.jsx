@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import api from '../../api';
 import { Toaster, toast } from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
 
 const StaffCustomerList = () => {
+  const navigate = useNavigate();
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -132,14 +134,20 @@ const StaffCustomerList = () => {
                         </span>
                       </td>
                       <td style={{ padding: '12px' }}>
-                        <button
-                          className="btn btn-outline btn-sm"
-                          onClick={() => {
-                            // Navigate to customer profile
-                          }}
-                        >
-                          View
-                        </button>
+                        <div style={{ display: 'flex', gap: '6px' }}>
+                          <button
+                            className="btn btn-outline btn-sm"
+                            onClick={() => navigate(`/staff/customers/${c.id}/documents`)}
+                          >
+                            Docs
+                          </button>
+                          <button
+                            className="btn btn-outline btn-sm"
+                            onClick={() => navigate(`/staff/customers/${c.id}/claims`)}
+                          >
+                            Claims
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))

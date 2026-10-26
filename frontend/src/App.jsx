@@ -49,9 +49,14 @@ const SystemCompaniesPage = React.lazy(() => import('./pages/system/SystemCompan
 
 // Staff Portal Pages
 const StaffCustomerList = React.lazy(() => import('./pages/staff/StaffCustomerList'));
+const StaffCustomerDocuments = React.lazy(() => import('./pages/staff/StaffCustomerDocuments'));
+const StaffCustomerClaims = React.lazy(() => import('./pages/staff/StaffCustomerClaims'));
 
 // Manager Portal Pages
 const ManagerDashboardPage = React.lazy(() => import('./pages/manager/ManagerDashboard'));
+const ManagerTeamAttendancePage = React.lazy(() => import('./pages/manager/ManagerTeamAttendance'));
+const ManagerTeamTasksPage = React.lazy(() => import('./pages/manager/ManagerTeamTasks'));
+const ManagerApprovalsPage = React.lazy(() => import('./pages/manager/ManagerApprovals'));
 
 // Admin Portal Pages
 const AdminPortalDashboardPage = React.lazy(() => import('./pages/admin/AdminPortalDashboard'));
@@ -136,7 +141,10 @@ const Sidebar = ({ role, onLogout }) => {
       { icon: Icons.Calendar, label: 'Monthly Comparisons', path: '/workforce/monthly', section: 'Workforce' },
       { icon: Icons.FileText, label: 'Reports', path: '/workforce/reports', section: 'Workforce' },
       { icon: Icons.Bell, label: 'Notifications', path: '/workforce/notifications', section: 'Workforce' },
-      { icon: Icons.Calendar, label: 'Leave Requests', path: '/workforce/leave-requests', section: 'Workforce' }
+      { icon: Icons.Calendar, label: 'Leave Requests', path: '/workforce/leave-requests', section: 'Workforce' },
+      { icon: Icons.Clock, label: 'Team Attendance', path: '/manager/attendance', section: 'Management' },
+      { icon: Icons.Task, label: 'Team Tasks', path: '/manager/tasks', section: 'Management' },
+      { icon: Icons.CheckCircle, label: 'Approvals', path: '/manager/approvals', section: 'Management' }
     ],
     company_admin: [
       { icon: Icons.Home, label: 'Company Dashboard', path: '/admin', section: 'Company' },
@@ -155,6 +163,23 @@ const Sidebar = ({ role, onLogout }) => {
       { icon: Icons.Calendar, label: 'Monthly Comparisons', path: '/workforce/monthly', section: 'Workforce' },
       { icon: Icons.FileText, label: 'Reports', path: '/workforce/reports', section: 'Workforce' },
       { icon: Icons.Bell, label: 'Notifications', path: '/workforce/notifications', section: 'Workforce' },
+      { icon: Icons.Calendar, label: 'Leave Requests', path: '/workforce/leave-requests', section: 'Workforce' },
+      { icon: Icons.Clock, label: 'Team Attendance', path: '/manager/attendance', section: 'Management' },
+      { icon: Icons.Task, label: 'Team Tasks', path: '/manager/tasks', section: 'Management' },
+      { icon: Icons.CheckCircle, label: 'Approvals', path: '/manager/approvals', section: 'Management' }
+    ],
+    department_manager: [
+      { icon: Icons.Home, label: 'Manager Dashboard', path: '/manager/dashboard', section: 'Management' },
+      { icon: Icons.Clock, label: 'Team Attendance', path: '/manager/attendance', section: 'Management' },
+      { icon: Icons.Task, label: 'Team Tasks', path: '/manager/tasks', section: 'Management' },
+      { icon: Icons.CheckCircle, label: 'Approvals', path: '/manager/approvals', section: 'Management' }
+    ],
+    hr_manager: [
+      { icon: Icons.Home, label: 'Manager Dashboard', path: '/manager/dashboard', section: 'Management' },
+      { icon: Icons.Clock, label: 'Team Attendance', path: '/manager/attendance', section: 'Management' },
+      { icon: Icons.Task, label: 'Team Tasks', path: '/manager/tasks', section: 'Management' },
+      { icon: Icons.CheckCircle, label: 'Approvals', path: '/manager/approvals', section: 'Management' },
+      { icon: Icons.Users, label: 'Employees', path: '/workforce/employees', section: 'Workforce' },
       { icon: Icons.Calendar, label: 'Leave Requests', path: '/workforce/leave-requests', section: 'Workforce' }
     ],
     employee: [
@@ -311,12 +336,47 @@ const App = () => {
               </Layout>
             </ProtectedRoute>
           } />
+          <Route path="/staff/customers/:id/documents" element={
+            <ProtectedRoute roles={['system_admin', 'company_admin', 'admin', 'hr_manager', 'department_manager', 'supervisor', 'employee', 'senior_management']}>
+              <Layout role="company_admin">
+                <StaffCustomerDocuments />
+              </Layout>
+            </ProtectedRoute>
+          } />
+          <Route path="/staff/customers/:id/claims" element={
+            <ProtectedRoute roles={['system_admin', 'company_admin', 'admin', 'hr_manager', 'department_manager', 'supervisor', 'employee', 'senior_management']}>
+              <Layout role="company_admin">
+                <StaffCustomerClaims />
+              </Layout>
+            </ProtectedRoute>
+          } />
 
           {/* Manager Portal Routes */}
           <Route path="/manager/dashboard" element={
             <ProtectedRoute roles={['department_manager', 'hr_manager', 'system_admin', 'company_admin', 'admin', 'senior_management']}>
               <Layout role="company_admin">
                 <ManagerDashboardPage />
+              </Layout>
+            </ProtectedRoute>
+          } />
+          <Route path="/manager/attendance" element={
+            <ProtectedRoute roles={['department_manager', 'hr_manager', 'system_admin', 'company_admin', 'admin', 'senior_management']}>
+              <Layout role="company_admin">
+                <ManagerTeamAttendancePage />
+              </Layout>
+            </ProtectedRoute>
+          } />
+          <Route path="/manager/tasks" element={
+            <ProtectedRoute roles={['department_manager', 'hr_manager', 'system_admin', 'company_admin', 'admin', 'senior_management']}>
+              <Layout role="company_admin">
+                <ManagerTeamTasksPage />
+              </Layout>
+            </ProtectedRoute>
+          } />
+          <Route path="/manager/approvals" element={
+            <ProtectedRoute roles={['department_manager', 'hr_manager', 'system_admin', 'company_admin', 'admin', 'senior_management']}>
+              <Layout role="company_admin">
+                <ManagerApprovalsPage />
               </Layout>
             </ProtectedRoute>
           } />
