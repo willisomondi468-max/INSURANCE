@@ -1,6 +1,7 @@
-import React, { useState, Suspense } from 'react';
+import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
+import api from './api';
 
 // Auth Context
 import AuthProvider, { useAuth } from './components/AuthContext';
@@ -96,6 +97,26 @@ const ProtectedRoute = ({ children, roles }) => {
 const Layout = ({ children, role }) => {
   const { logout, user } = useAuth();
   const navigate = useNavigate();
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  const fetchUnreadCount = useCallback(async () => {
+    try {
+      const res = await api.get('/notifications/unread-count');
+      if (res.success) {
+        setUnreadCount(res.data.unreadCount);
+      }
+    } catch (err) {
+      // Silently fail - notifications are optional
+    }
+  }, []);
+
+  useEffect(() => {
+    if (user) {
+      fetchUnreadCount();
+      const interval = setInterval(fetchUnreadCount, 30000);
+      return () => clearInterval(interval);
+    }
+  }, [user, fetchUnreadCount]);
 
   const handleLogout = () => {
     logout();
@@ -110,6 +131,16 @@ const Layout = ({ children, role }) => {
           <div></div>
           <div className="user-menu">
             <span>{user?.fullName || user?.email}</span>
+            {unreadCount > 0 && (
+              <span className="notification-badge">{unreadCount}</span>
+            )}
+            <button
+              className="notification-bell"
+              onClick={() => navigate('/workforce/notifications')}
+              title="Notifications"
+            >
+              <Icons.Bell />
+            </button>
             <div className="user-avatar">
               {user?.email?.charAt(0).toUpperCase()}
             </div>
