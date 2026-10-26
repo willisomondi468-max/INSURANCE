@@ -271,13 +271,14 @@ const Sidebar = ({ role, onLogout }) => {
               </div>
             );
           }
+          const Icon = item.icon;
           return (
             <div
               key={index}
               className={`nav-item ${activeNav === item.path ? 'active' : ''}`}
               onClick={() => { setActiveNav(item.path); navigate(item.path); }}
             >
-              <item.icon /> {item.label}
+              <Icon /> {item.label}
             </div>
           );
         })}
