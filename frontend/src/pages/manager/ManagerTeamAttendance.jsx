@@ -1,18 +1,16 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import api from '../../api';
 import { Toaster, toast } from 'react-hot-toast';
-import { date, dateTime, statusVariant, humanize, money } from '../../api';
+import { date, dateTime, statusVariant, humanize } from '../../api';
 
 // Manager Team Attendance - view team attendance records
 const ManagerTeamAttendance = () => {
   const [attendance, setAttendance] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [pagination, setPagination] = useState({ total: 0, page: 1, limit: 50, pages: 0 });
   const [filters, setFilters] = useState({ startDate: '', endDate: '', status: '', employeeId: '' });
 
   const fetchAttendance = useCallback(async () => {
     try {
-      setLoading(true);
       const params = new URLSearchParams();
       params.set('page', pagination.page);
       params.set('limit', pagination.limit);
@@ -28,10 +26,8 @@ const ManagerTeamAttendance = () => {
       }
     } catch (err) {
       toast.error('Failed to load attendance');
-    } finally {
-      setLoading(false);
     }
-  }, [pagination.page, filters.startDate, filters.endDate, filters.status, filters.employeeId]);
+  }, [pagination.page, pagination.limit, filters.startDate, filters.endDate, filters.status, filters.employeeId]);
 
   useEffect(() => {
     fetchAttendance();

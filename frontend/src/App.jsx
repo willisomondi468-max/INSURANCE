@@ -60,6 +60,9 @@ const ManagerApprovalsPage = React.lazy(() => import('./pages/manager/ManagerApp
 
 // Admin Portal Pages
 const AdminPortalDashboardPage = React.lazy(() => import('./pages/admin/AdminPortalDashboard'));
+const AdminUserManagementPage = React.lazy(() => import('./pages/admin/AdminUserManagement'));
+const AdminDepartmentsPage = React.lazy(() => import('./pages/admin/AdminDepartments'));
+const AdminAuditLogsPage = React.lazy(() => import('./pages/admin/AdminAuditLogs'));
 
 // Pages (extracted from App.js)
 const LoginPage = React.lazy(() => import('./pages/Login'));
@@ -128,6 +131,9 @@ const Sidebar = ({ role, onLogout }) => {
       { icon: Icons.Home, label: 'System Dashboard', path: '/system/dashboard', section: 'System' },
       { icon: Icons.Building, label: 'Companies', path: '/system/companies', section: 'System' },
       { icon: Icons.Shield, label: 'Admin Portal', path: '/admin/portal', section: 'Admin' },
+      { icon: Icons.Users, label: 'User Management', path: '/admin/users', section: 'Admin' },
+      { icon: Icons.Building, label: 'Departments', path: '/admin/departments', section: 'Admin' },
+      { icon: Icons.FileText, label: 'Audit Logs', path: '/admin/audit-logs', section: 'Admin' },
       { icon: Icons.Shield, label: 'Plans', path: '/admin/plans', section: 'Admin' },
       { icon: Icons.Users, label: 'Customers', path: '/admin/customers', section: 'Admin' },
       { icon: Icons.Users, label: 'Staff Customers', path: '/staff/customers', section: 'Staff' },
@@ -149,6 +155,9 @@ const Sidebar = ({ role, onLogout }) => {
     company_admin: [
       { icon: Icons.Home, label: 'Company Dashboard', path: '/admin', section: 'Company' },
       { icon: Icons.Shield, label: 'Admin Portal', path: '/admin/portal', section: 'Admin' },
+      { icon: Icons.Users, label: 'User Management', path: '/admin/users', section: 'Admin' },
+      { icon: Icons.Building, label: 'Departments', path: '/admin/departments', section: 'Admin' },
+      { icon: Icons.FileText, label: 'Audit Logs', path: '/admin/audit-logs', section: 'Admin' },
       { icon: Icons.Users, label: 'Customers', path: '/admin/customers', section: 'Company' },
       { icon: Icons.Users, label: 'Staff Customers', path: '/staff/customers', section: 'Staff' },
       { icon: Icons.FileText, label: 'Policies', path: '/admin/policies', section: 'Company' },
@@ -386,6 +395,27 @@ const App = () => {
             <ProtectedRoute roles={['system_admin', 'company_admin', 'admin']}>
               <Layout role="company_admin">
                 <AdminPortalDashboardPage />
+              </Layout>
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/users" element={
+            <ProtectedRoute roles={['system_admin', 'company_admin', 'admin']}>
+              <Layout role="company_admin">
+                <AdminUserManagementPage />
+              </Layout>
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/departments" element={
+            <ProtectedRoute roles={['system_admin', 'company_admin', 'admin']}>
+              <Layout role="company_admin">
+                <AdminDepartmentsPage />
+              </Layout>
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/audit-logs" element={
+            <ProtectedRoute roles={['system_admin', 'company_admin', 'admin']}>
+              <Layout role="company_admin">
+                <AdminAuditLogsPage />
               </Layout>
             </ProtectedRoute>
           } />

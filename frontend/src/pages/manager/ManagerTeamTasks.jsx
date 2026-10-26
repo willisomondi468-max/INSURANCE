@@ -6,13 +6,11 @@ import { date, statusVariant, humanize } from '../../api';
 // Manager Team Tasks - view and manage team tasks
 const ManagerTeamTasks = () => {
   const [tasks, setTasks] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [pagination, setPagination] = useState({ total: 0, page: 1, limit: 50, pages: 0 });
   const [filters, setFilters] = useState({ status: '', priority: '', employeeId: '' });
 
   const fetchTasks = useCallback(async () => {
     try {
-      setLoading(true);
       const params = new URLSearchParams();
       params.set('page', pagination.page);
       params.set('limit', pagination.limit);
@@ -27,10 +25,8 @@ const ManagerTeamTasks = () => {
       }
     } catch (err) {
       toast.error('Failed to load tasks');
-    } finally {
-      setLoading(false);
     }
-  }, [pagination.page, filters.status, filters.priority, filters.employeeId]);
+  }, [pagination.page, pagination.limit, filters.status, filters.priority, filters.employeeId]);
 
   useEffect(() => {
     fetchTasks();
