@@ -56,6 +56,29 @@ router.post(
   authController.logout
 );
 
+// POST /api/auth/forgot-password
+// Request password reset
+router.post(
+  '/forgot-password',
+  [
+    body('email').isEmail().withMessage('Valid email is required')
+  ],
+  validate,
+  authController.forgotPassword
+);
+
+// POST /api/auth/reset-password
+// Reset password using reset token
+router.post(
+  '/reset-password',
+  [
+    body('token').notEmpty().withMessage('Reset token is required'),
+    body('newPassword').isLength({ min: 6 }).withMessage('Password must be at least 6 characters')
+  ],
+  validate,
+  authController.resetPassword
+);
+
 // POST /api/auth/check-existence
 // Check if customer details exist in database
 router.post(

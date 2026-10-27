@@ -5,12 +5,12 @@ const AuthContext = createContext(null);
 
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(localStorage.getItem('token'));
+  const [token, setToken] = useState(localStorage.getItem('token') || sessionStorage.getItem('token'));
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (token) {
-      const storedUser = localStorage.getItem('user');
+      const storedUser = localStorage.getItem('user') || sessionStorage.getItem('user');
       if (storedUser) {
         setUser(JSON.parse(storedUser));
       }
@@ -18,12 +18,13 @@ const AuthProvider = ({ children }) => {
     setLoading(false);
   }, [token]);
 
-  const login = async (email, password) => {
+  const login = async (email, password, rememberMe = false) => {
     const response = await api.post('/auth/login', { email, password });
     if (response.success) {
-      localStorage.setItem('token', response.data.accessToken);
-      localStorage.setItem('refreshToken', response.data.refreshToken);
-      localStorage.setItem('user', JSON.stringify(response.data.user));
+      const storage = rememberMe ? localStorage : sessionStorage;
+      storage.setItem('token', response.data.accessToken);
+      storage.setItem('refreshToken', response.data.refreshToken);
+      storage.setItem('user', JSON.stringify(response.data.user));
       setToken(response.data.accessToken);
       setUser(response.data.user);
       return { success: true };
@@ -48,6 +49,9 @@ const AuthProvider = ({ children }) => {
     localStorage.removeItem('token');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('user');
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('refreshToken');
+    sessionStorage.removeItem('user');
     setToken(null);
     setUser(null);
   };

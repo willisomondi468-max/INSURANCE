@@ -328,6 +328,156 @@ const logout = async (req, res) => {
 };
 
 /**
+ * Forgot password - request password reset
+ * POST /api/auth/forgot-password
+ */
+const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email is required'
+      });
+    }
+
+    // Find user
+    const result = await query(
+      `SELECT id, email FROM users WHERE email = $1`,
+      [email]
+    );
+
+    if (result.rows.length === 0) {
+      // Don't reveal whether email exists - always return success
+      return res.json({
+        success: true,
+        message: 'If an account exists with this email, a password reset link has been sent.'
+      });
+    }
+
+    const user = result.rows[0];
+
+    // Generate reset token (expires in 1 hour)
+    const resetToken = jwt.sign(
+      { userId: user.id, type: 'password_reset' },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
+    );
+
+    // Store reset token in database
+    const expiresAt = new Date();
+    expiresAt.setHours(expiresAt.getHours() + 1);
+
+    await query(
+      `INSERT INTO refresh_tokens (user_id, token, expires_at) VALUES ($1, $2, $3)
+       ON CONFLICT (user_id) DO UPDATE SET token = $2, expires_at = $3`,
+      [user.id, resetToken, expiresAt]
+    );
+
+    // Send reset email if email service is configured
+    try {
+      await sendEmail(email, 'Password Reset Request', 'password-reset', {
+        name: user.email,
+        resetUrl: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/reset-password?token=${resetToken}`
+      });
+    } catch (emailError) {
+      console.log('Email sending failed:', emailError.message);
+    }
+
+    res.json({
+      success: true,
+      message: 'If an account exists with this email, a password reset link has been sent.'
+    });
+  } catch (error) {
+    console.error('Forgot password error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to process password reset request'
+    });
+  }
+};
+
+/**
+ * Reset password - set new password using reset token
+ * POST /api/auth/reset-password
+ */
+const resetPassword = async (req, res) => {
+  try {
+    const { token, newPassword } = req.body;
+
+    if (!token || !newPassword) {
+      return res.status(400).json({
+        success: false,
+        message: 'Reset token and new password are required'
+      });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: 'Password must be at least 6 characters'
+      });
+    }
+
+    // Verify reset token
+    let decoded;
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET);
+    } catch (err) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid or expired reset token'
+      });
+    }
+
+    if (decoded.type !== 'password_reset') {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid reset token type'
+      });
+    }
+
+    // Verify token exists in database and not expired
+    const tokenResult = await query(
+      `SELECT * FROM refresh_tokens WHERE token = $1 AND user_id = $2 AND expires_at > NOW()`,
+      [token, decoded.userId]
+    );
+
+    if (tokenResult.rows.length === 0) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid or expired reset token'
+      });
+    }
+
+    // Hash new password
+    const salt = await bcrypt.genSalt(10);
+    const passwordHash = await bcrypt.hash(newPassword, salt);
+
+    // Update user password
+    await query(
+      `UPDATE users SET password_hash = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2`,
+      [passwordHash, decoded.userId]
+    );
+
+    // Delete used reset token
+    await query('DELETE FROM refresh_tokens WHERE token = $1', [token]);
+
+    res.json({
+      success: true,
+      message: 'Password has been reset successfully. You can now log in with your new password.'
+    });
+  } catch (error) {
+    console.error('Reset password error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to reset password'
+    });
+  }
+};
+
+/**
  * Check if customer details exist
  * POST /api/auth/check-existence
  */
@@ -484,5 +634,7 @@ module.exports = {
   refreshToken,
   logout,
   checkExistence,
-  confirmDetails
+  confirmDetails,
+  forgotPassword,
+  resetPassword
 };
