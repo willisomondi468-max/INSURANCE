@@ -4,11 +4,10 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
-// Fail loudly and early if the JWT secret is missing - token signing and
-// verification depend on it, and a silent undefined here breaks every login.
+// Warn if JWT_SECRET is missing but do NOT crash the serverless function.
+// Vercel serverless functions cannot recover from process.exit(1).
 if (!process.env.JWT_SECRET) {
-  console.error('❌ JWT_SECRET is not set. Add it to backend/.env (see .env.example).');
-  process.exit(1);
+  console.warn('⚠️  JWT_SECRET is not set. Auth endpoints will fail until it is configured in Vercel env vars.');
 }
 
 const { initPool, pool } = require('./config/db');
@@ -171,7 +170,7 @@ app.use((err, req, res, next) => {
 // Get port from environment or use default
 const PORT = process.env.PORT || 5000;
 
-// Start server
+// Start server - only when NOT running on Vercel (serverless handles invocation)
 const start = async () => {
   // Verify the database before accepting traffic. The server still boots when
   // the database is unreachable so /api/health can report the real problem.
@@ -192,7 +191,7 @@ const start = async () => {
 
   app.listen(PORT, () => {
     console.log(`
-  ╔═══════════════════════════════════════════════════════════╗
+  ╔═════════════════════════════════════════════════════════════════╗
   ║                                                           ║
   ║   🚀 Insurance Management System API                      ║
   ║                                                           ║
@@ -206,9 +205,9 @@ const start = async () => {
   ║   • Plans:    GET  /api/plans                             ║
   ║   • Policies: GET  /api/policies                          ║
   ║   • Claims:   GET  /api/claims                            ║
-  ║   • Tickets:  GET  /api/tickets                           ║
+  ║   • Tickets:   GET  /api/tickets                           ║
   ║                                                           ║
-  ╚═══════════════════════════════════════════════════════════╝
+  ╚══════════════════════════════════════════════════════════════════╝
     `);
   });
 };
