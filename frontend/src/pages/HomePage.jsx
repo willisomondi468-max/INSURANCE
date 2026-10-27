@@ -51,10 +51,10 @@ const HomePage = () => {
       category: 'Life & Family',
       headline: 'Protecting What Matters Most.',
       subheadline: 'From your family and home to your business and investments, InsuraVault delivers protection built around your future.',
-      primaryButton: 'Explore Coverage',
+      primaryButton: !authToken ? 'Sign In' : 'Explore Coverage',
       secondaryButton: 'Get a Quote',
-      onPrimary: () => navigate('/insurance/life'),
-      onSecondary: () => navigate('/quote/life')
+      onPrimary: () => (authToken ? navigate('/insurance/life') : navigate('/login')),
+      onSecondary: () => navigate('/quote')
     },
     {
       url: img('hero-motor.jpg'),
@@ -184,6 +184,13 @@ const HomePage = () => {
 
   return (
     <div className="homepage">
+      {!authToken && (
+        <div style={{ padding: '16px 24px', background: 'var(--soft-bg)', display: 'flex', justifyContent: 'flex-end', borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
+          <button className="btn btn-outline" onClick={() => navigate('/login')} style={{ padding: '8px 24px', fontSize: '14px', fontWeight: 600 }}>
+            Sign In
+          </button>
+        </div>
+      )}
       {/* Hero Carousel */}
       <section className="hero-section">
         <ImageCarousel
@@ -320,6 +327,11 @@ const HomePage = () => {
             <button className="btn btn-outline" style={{ padding: '18px 48px', fontSize: '17px', fontWeight: 600, color: 'white', borderColor: 'rgba(255,255,255,0.4)' }} onClick={() => navigate('/insurance')}>
               Explore Products
             </button>
+            {!authToken && (
+              <button className="btn btn-outline" style={{ padding: '18px 48px', fontSize: '17px', fontWeight: 600, color: 'white', borderColor: 'rgba(255,255,255,0.4)' }} onClick={() => navigate('/login')}>
+                Sign In
+              </button>
+            )}
           </div>
         </div>
       </section>
