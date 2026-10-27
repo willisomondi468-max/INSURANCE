@@ -79,27 +79,7 @@ const initializeDatabase = async () => {
       $$;
     `).catch(e => console.log('user_role add company_admin:', e.message));
 
-    // Add company_id column to users if not exists
-    await client.query(`
-      DO $$
-      BEGIN
-        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'users' AND column_name = 'company_id') THEN
-          ALTER TABLE users ADD COLUMN company_id UUID REFERENCES companies(id) ON DELETE CASCADE;
-        END IF;
-      END
-      $$;
-    `).catch(e => console.log('users add company_id:', e.message));
-
-    // Add company_id column to employees if not exists
-    await client.query(`
-      DO $$
-      BEGIN
-        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'employees' AND column_name = 'company_id') THEN
-          ALTER TABLE employees ADD COLUMN company_id UUID REFERENCES companies(id) ON DELETE CASCADE;
-        END IF;
-      END
-      $$;
-    `).catch(e => console.log('employees add company_id:', e.message));
+    // ========================================================================
 
     // ========================================================================
     // MULTI-TENANCY: Companies Table
@@ -124,6 +104,155 @@ const initializeDatabase = async () => {
       );
     `);
     console.log('✅ Companies table created');
+
+    // Insurance plans table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS insurance_plans (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        name VARCHAR(255) NOT NULL,
+        description TEXT,
+        coverage_amount NUMERIC(15,2) NOT NULL,
+        premium_amount NUMERIC(15,2) NOT NULL,
+        duration_months INTEGER NOT NULL DEFAULT 12,
+        features JSONB DEFAULT '[]',
+        is_active BOOLEAN DEFAULT true,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE (name)
+      );
+    `);
+    console.log('✅ Insurance plans table created');
+
+    // Customer details table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS customer_details (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id UUID UNIQUE REFERENCES users(id) ON DELETE CASCADE,
+        full_name VARCHAR(255) NOT NULL,
+        id_number VARCHAR(50),
+        phone VARCHAR(20),
+        email VARCHAR(255),
+        address TEXT,
+        date_of_birth DATE,
+        is_verified BOOLEAN DEFAULT false,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+    console.log('✅ Customer details table created');
+
+    // Policies table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS policies (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        customer_id UUID REFERENCES users(id) ON DELETE CASCADE,
+        plan_id UUID REFERENCES insurance_plans(id) ON DELETE SET NULL,
+        policy_number VARCHAR(50) UNIQUE NOT NULL,
+        status VARCHAR(20) DEFAULT 'pending',
+        start_date DATE,
+        end_date DATE,
+        premium_amount NUMERIC(15,2),
+        coverage_amount NUMERIC(15,2),
+        documents JSONB DEFAULT '[]',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+    console.log('✅ Policies table created');
+
+    // Claims table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS claims (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        policy_id UUID REFERENCES policies(id) ON DELETE SET NULL,
+        customer_id UUID REFERENCES users(id) ON DELETE CASCADE,
+        claim_number VARCHAR(50) UNIQUE NOT NULL,
+        claim_type VARCHAR(50),
+        amount_claimed NUMERIC(15,2),
+        description TEXT,
+        documents JSONB DEFAULT '[]',
+        notes TEXT,
+        status VARCHAR(20) DEFAULT 'pending',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+    console.log('✅ Claims table created');
+
+    // Payments table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS payments (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        customer_id UUID REFERENCES users(id) ON DELETE CASCADE,
+        policy_id UUID REFERENCES policies(id) ON DELETE SET NULL,
+        amount NUMERIC(15,2) NOT NULL,
+        payment_method VARCHAR(50),
+        transaction_id VARCHAR(100),
+        status VARCHAR(20) DEFAULT 'completed',
+        payment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+    console.log('✅ Payments table created');
+
+    // Tickets table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS tickets (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        customer_id UUID REFERENCES users(id) ON DELETE CASCADE,
+        assigned_provider_id UUID REFERENCES users(id) ON DELETE SET NULL,
+        subject VARCHAR(255) NOT NULL,
+        description TEXT,
+        priority VARCHAR(20) DEFAULT 'medium',
+        status VARCHAR(20) DEFAULT 'open',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+    console.log('✅ Tickets table created');
+
+    // Ticket responses table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS ticket_responses (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        ticket_id UUID NOT NULL REFERENCES tickets(id) ON DELETE CASCADE,
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        response TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+    console.log('✅ Ticket responses table created');
+
+    // Audit logs table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS audit_logs (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+        action VARCHAR(50) NOT NULL,
+        entity_type VARCHAR(50),
+        entity_id UUID,
+        details JSONB,
+        ip_address VARCHAR(45),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+    console.log('✅ Audit logs table created');
+
+    // Indexes for core tables
+    await client.query(`CREATE INDEX IF NOT EXISTS idx_customer_details_user_id ON customer_details(user_id);`);
+    await client.query(`CREATE INDEX IF NOT EXISTS idx_policies_customer_id ON policies(customer_id);`);
+    await client.query(`CREATE INDEX IF NOT EXISTS idx_policies_plan_id ON policies(plan_id);`);
+    await client.query(`CREATE INDEX IF NOT EXISTS idx_policies_status ON policies(status);`);
+    await client.query(`CREATE INDEX IF NOT EXISTS idx_claims_customer_id ON claims(customer_id);`);
+    await client.query(`CREATE INDEX IF NOT EXISTS idx_claims_policy_id ON claims(policy_id);`);
+    await client.query(`CREATE INDEX IF NOT EXISTS idx_claims_status ON claims(status);`);
+    await client.query(`CREATE INDEX IF NOT EXISTS idx_payments_customer_id ON payments(customer_id);`);
+    await client.query(`CREATE INDEX IF NOT EXISTS idx_payments_policy_id ON payments(policy_id);`);
+    await client.query(`CREATE INDEX IF NOT EXISTS idx_tickets_customer_id ON tickets(customer_id);`);
+    await client.query(`CREATE INDEX IF NOT EXISTS idx_tickets_status ON tickets(status);`);
+    await client.query(`CREATE INDEX IF NOT EXISTS idx_ticket_responses_ticket_id ON ticket_responses(ticket_id);`);
+    await client.query(`CREATE INDEX IF NOT EXISTS idx_audit_logs_user_id ON audit_logs(user_id);`);
+    console.log('✅ Core table indexes created');
 
     // Create Users Table with company_id for multi-tenancy
     await client.query(`
@@ -184,19 +313,6 @@ const initializeDatabase = async () => {
       [defaultCompanyId, adminEmail, adminPasswordHash]
     );
     console.log(`✅ Company admin user ready (email: ${adminEmail}, password: ${adminPassword})`);
-
-    // Insert sample insurance plans
-    await client.query(`
-      INSERT INTO insurance_plans (name, description, coverage_amount, premium_amount, duration_months, features, is_active)
-      VALUES 
-        ('Basic Health Insurance', 'Comprehensive health coverage for individuals and families', 100000.00, 500.00, 12, '["Hospitalization", "Outpatient Care", "Prescription Drugs", "Annual Health Checkup"]', true),
-        ('Premium Health Insurance', 'Extended health coverage with additional benefits', 500000.00, 1500.00, 12, '["Hospitalization", "Outpatient Care", "Prescription Drugs", "Annual Health Checkup", "Dental Care", "Vision Care", "Mental Health"]', true),
-        ('Life Insurance', 'Term life insurance for financial security', 1000000.00, 800.00, 24, '["Death Benefit", "Accidental Death", "Disability Benefit"]', true),
-        ('Vehicle Insurance', 'Comprehensive vehicle coverage', 500000.00, 300.00, 12, '["Accident Coverage", "Theft Protection", "Third Party Liability", "Natural Disaster"]', true),
-        ('Home Insurance', 'Protect your home and belongings', 200000.00, 250.00, 12, '["Fire Damage", "Theft", "Natural Disasters", "Liability Coverage"]', true)
-      ON CONFLICT DO NOTHING
-    `);
-    console.log('✅ Sample insurance plans created');
 
     // ========================================================================
     // WORKFORCE MANAGEMENT TABLES
@@ -543,6 +659,19 @@ const initializeDatabase = async () => {
       ON CONFLICT DO NOTHING
     `);
     console.log('✅ Default departments created');
+
+    // Insert sample insurance plans
+    await client.query(`
+      INSERT INTO insurance_plans (name, description, coverage_amount, premium_amount, duration_months, features, is_active)
+      VALUES 
+        ('Basic Health Insurance', 'Comprehensive health coverage for individuals and families', 100000.00, 500.00, 12, '["Hospitalization", "Outpatient Care", "Prescription Drugs", "Annual Health Checkup"]', true),
+        ('Premium Health Insurance', 'Extended health coverage with additional benefits', 500000.00, 1500.00, 12, '["Hospitalization", "Outpatient Care", "Prescription Drugs", "Annual Health Checkup", "Dental Care", "Vision Care", "Mental Health"]', true),
+        ('Life Insurance', 'Term life insurance for financial security', 1000000.00, 800.00, 24, '["Death Benefit", "Accidental Death", "Disability Benefit"]', true),
+        ('Vehicle Insurance', 'Comprehensive vehicle coverage', 500000.00, 300.00, 12, '["Accident Coverage", "Theft Protection", "Third Party Liability", "Natural Disaster"]', true),
+        ('Home Insurance', 'Protect your home and belongings', 200000.00, 250.00, 12, '["Fire Damage", "Theft", "Natural Disasters", "Liability Coverage"]', true)
+      ON CONFLICT (name) DO NOTHING
+    `);
+    console.log('✅ Sample insurance plans created');
 
     console.log('🎉 Database initialization completed successfully!');
     return true;

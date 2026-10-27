@@ -11,10 +11,11 @@ const getAllTickets = async (req, res) => {
 
     let queryText = `
       SELECT t.*, cd.full_name as customer_name,
-             au.full_name as assigned_to_name
+             aucd.full_name as assigned_to_name
       FROM tickets t
       LEFT JOIN customer_details cd ON t.customer_id = cd.user_id
       LEFT JOIN users au ON t.assigned_provider_id = au.id
+      LEFT JOIN customer_details aucd ON au.id = aucd.user_id
       WHERE 1=1
     `;
     const queryParams = [];
@@ -103,10 +104,11 @@ const getTicketById = async (req, res) => {
 
     const result = await query(
       `SELECT t.*, cd.full_name as customer_name, cd.email as customer_email,
-              au.full_name as assigned_to_name
+              aucd.full_name as assigned_to_name
        FROM tickets t
        LEFT JOIN customer_details cd ON t.customer_id = cd.user_id
        LEFT JOIN users au ON t.assigned_provider_id = au.id
+       LEFT JOIN customer_details aucd ON au.id = aucd.user_id
        WHERE t.id = $1`,
       [id]
     );

@@ -67,27 +67,37 @@ const initPool = async () => {
   }
 };
 
-const query = async (text, params) => {
-  if (!dbAvailable) {
-    return { rows: [], rowCount: 0 };
-  }
+const query = async (text, params, retries = 2) => {
   try {
     const res = await pool.query(text, params);
+    dbAvailable = true;
     return res;
   } catch (err) {
-    console.warn('Query failed:', err.message);
+    // Transient connection errors (Supabase pooler terminates idle connections)
+    const transient = ['Connection terminated unexpectedly', 'Connection terminated', 'ECONNRESET', 'ECONNREFUSED', 'ETIMEDOUT', 'the connection has lost', 'server closed the connection'].some(s => err.message && err.message.includes(s));
+    if (transient && retries > 0) {
+      dbAvailable = false;
+      console.warn('Query failed (transient), retrying:', err.message);
+      await new Promise(r => setTimeout(r, 500));
+      return query(text, params, retries - 1);
+    }
+    console.error('Query failed:', err.message);
+    if (!transient) {
+      throw err; // real SQL errors should surface, not be silently swallowed
+    }
     dbAvailable = false;
     return { rows: [], rowCount: 0 };
   }
 };
 
 const getClient = async () => {
-  if (!dbAvailable) return null;
   try {
     const client = await pool.connect();
+    dbAvailable = true;
     return client;
   } catch (err) {
     dbAvailable = false;
+    console.error('getClient failed:', err.message);
     return null;
   }
 };
