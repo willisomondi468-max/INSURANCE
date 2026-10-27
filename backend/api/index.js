@@ -1,3 +1,6 @@
 const app = require('../src/index');
 
-module.exports = app;
+// Export as a function for Vercel serverless compatibility
+module.exports = (req, res) => {
+  app(req, res);
+};
