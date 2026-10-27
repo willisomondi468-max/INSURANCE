@@ -25,14 +25,14 @@ const generateTokens = async (user) => {
     { expiresIn: process.env.JWT_REFRESH_EXPIRE || '7d' }
   );
 
-  // Store refresh token in database
+  // Store refresh token in database (non-blocking)
   const expiresAt = new Date();
   expiresAt.setDate(expiresAt.getDate() + 7);
 
-  await query(
+  query(
     'INSERT INTO refresh_tokens (user_id, token, expires_at) VALUES ($1, $2, $3)',
     [user.id, refreshToken, expiresAt]
-  );
+  ).catch(() => {});
 
   return { accessToken, refreshToken };
 };
@@ -168,12 +168,12 @@ const login = async (req, res) => {
     // Verify password
     const isMatch = await bcrypt.compare(password, user.password_hash);
     if (!isMatch) {
-      // Log failed login attempt
-      await query(
+      // Log failed login attempt (non-blocking)
+      query(
         `INSERT INTO audit_logs (user_id, action, entity_type, details, ip_address)
          VALUES ($1, 'login_failed', 'user', $2, $3)`,
         [user.id, JSON.stringify({ email }), req.ip]
-      );
+      ).catch(() => {});
       
       return res.status(401).json({
         success: false,
@@ -184,22 +184,19 @@ const login = async (req, res) => {
     // Generate tokens
     const tokens = await generateTokens(user);
 
-    // Log successful login
-    await query(
+    // Log successful login (non-blocking)
+    query(
       `INSERT INTO audit_logs (user_id, action, entity_type, details, ip_address)
        VALUES ($1, 'login', 'user', $2, $3)`,
       [user.id, JSON.stringify({ email }), req.ip]
-    );
+    ).catch(() => {});
 
-    // Get customer details if exists
-    let customerDetails = null;
-    if (user.role === 'customer') {
-      const cdResult = await query(
-        'SELECT * FROM customer_details WHERE user_id = $1',
-        [user.id]
-      );
-      customerDetails = cdResult.rows[0];
-    }
+    // Customer details already loaded via JOIN above
+    const customerDetails = user.role === 'customer' ? {
+      id: user.id,
+      full_name: user.full_name,
+      id_number: user.id_number
+    } : null;
 
     res.json({
       success: true,
@@ -210,7 +207,7 @@ const login = async (req, res) => {
           email: user.email,
           role: user.role,
           phone: user.phone,
-          fullName: customerDetails?.full_name || null
+          fullName: user.full_name || null
         },
         customerDetails,
         ...tokens
