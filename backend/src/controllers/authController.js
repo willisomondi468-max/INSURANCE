@@ -365,13 +365,16 @@ const forgotPassword = async (req, res) => {
       { expiresIn: '1h' }
     );
 
-    // Store reset token in database
+    // Store reset token in database - delete existing first, then insert
     const expiresAt = new Date();
     expiresAt.setHours(expiresAt.getHours() + 1);
 
     await query(
-      `INSERT INTO refresh_tokens (user_id, token, expires_at) VALUES ($1, $2, $3)
-       ON CONFLICT (user_id) DO UPDATE SET token = $2, expires_at = $3`,
+      'DELETE FROM refresh_tokens WHERE user_id = $1',
+      [user.id]
+    );
+    await query(
+      'INSERT INTO refresh_tokens (user_id, token, expires_at) VALUES ($1, $2, $3)',
       [user.id, resetToken, expiresAt]
     );
 
