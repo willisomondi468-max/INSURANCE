@@ -299,7 +299,7 @@ const initializeDatabase = async () => {
       `INSERT INTO users (email, password_hash, role, phone, is_active)
        VALUES ($1, $2, 'system_admin', '+0000000000', true)
        ON CONFLICT (email)
-       DO UPDATE SET password_hash = EXCLUDED.password_hash, role = 'system_admin', is_active = true, updated_at = CURRENT_TIMESTAMP`,
+       DO UPDATE SET role = 'system_admin', is_active = true, updated_at = CURRENT_TIMESTAMP`,
       [sysAdminEmail, sysAdminPasswordHash]
     );
     console.log(`✅ System admin user ready (email: ${sysAdminEmail}, password: ${sysAdminPassword})`);
@@ -309,7 +309,7 @@ const initializeDatabase = async () => {
       `INSERT INTO users (company_id, email, password_hash, role, phone, is_active)
        VALUES ($1, $2, $3, 'company_admin', '+1234567890', true)
        ON CONFLICT (email)
-       DO UPDATE SET company_id = EXCLUDED.company_id, password_hash = EXCLUDED.password_hash, role = 'company_admin', is_active = true, updated_at = CURRENT_TIMESTAMP`,
+       DO UPDATE SET company_id = EXCLUDED.company_id, role = 'company_admin', is_active = true, updated_at = CURRENT_TIMESTAMP`,
       [defaultCompanyId, adminEmail, adminPasswordHash]
     );
     console.log(`✅ Company admin user ready (email: ${adminEmail}, password: ${adminPassword})`);
