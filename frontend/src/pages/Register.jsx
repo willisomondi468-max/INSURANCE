@@ -27,7 +27,7 @@ export const Icons = {
 
 const RegisterPage = () => {
   const [step, setStep] = useState(1);
-  const [formData, setFormData] = useState({
+const [formData, setFormData] = useState({
     email: '', password: '', phone: '', fullName: '', idNumber: '', address: '', dateOfBirth: ''
   });
   const [existingCustomer, setExistingCustomer] = useState(null);
@@ -38,6 +38,14 @@ const RegisterPage = () => {
   const handleCheckExistence = async (e) => {
     e.preventDefault();
     setLoading(true);
+    
+    // If neither ID nor phone provided, skip to registration form
+    if (!formData.idNumber && !formData.phone) {
+      setLoading(false);
+      setStep(3);
+      return;
+    }
+
     const result = await checkExistence(formData.idNumber, formData.phone);
     setLoading(false);
     
@@ -175,13 +183,13 @@ const RegisterPage = () => {
               />
             </div>
             <div className="form-group">
-              <label className="form-label">ID Number *</label>
+              <label className="form-label">ID Number</label>
               <input
                 type="text"
                 className="form-input"
                 value={formData.idNumber}
                 onChange={(e) => setFormData({ ...formData, idNumber: e.target.value })}
-                required
+                placeholder="Enter ID number (optional)"
               />
             </div>
             <div className="form-group">

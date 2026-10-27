@@ -49,6 +49,11 @@ const register = async (req, res) => {
 
     const { email, password, phone, fullName, idNumber, address, dateOfBirth } = req.body;
 
+    // Default optional fields
+    const idNum = idNumber || '';
+    const addr = address || '';
+    const dob = dateOfBirth || '';
+
     // Check if user already exists
     const existingUser = await client.query(
       'SELECT id, email FROM users WHERE email = $1',
@@ -81,7 +86,7 @@ const register = async (req, res) => {
     await client.query(
       `INSERT INTO customer_details (user_id, full_name, id_number, phone, email, address, date_of_birth)
        VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-      [user.id, fullName, idNumber, phone, email, address, dateOfBirth]
+      [user.id, fullName, idNum, phone, email, addr, dob]
     );
 
     // Create audit log
