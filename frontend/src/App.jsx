@@ -7,7 +7,6 @@ import api from './api';
 import AuthProvider, { useAuth } from './components/AuthContext';
 
 // Layout
-import Icons from './components/Icons';
 
 // Workforce Pages
 const WorkforceEmployees = React.lazy(() => import('./pages/workforce/WorkforceEmployees'));
@@ -139,7 +138,7 @@ const Layout = ({ children, role }) => {
               onClick={() => navigate('/workforce/notifications')}
               title="Notifications"
             >
-              <Icons.Bell />
+              <BellIcon />
             </button>
             <div className="user-avatar">
               {user?.email?.charAt(0).toUpperCase()}
@@ -152,97 +151,137 @@ const Layout = ({ children, role }) => {
   );
 };
 
-// Sidebar Component
+// Sidebar Component - Self-contained with inline icons
+const ShieldIcon = () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>;
+const HomeIcon = () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>;
+const BuildingIcon = () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 1L3 5v6c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V5l-9-4z"/><path d="M7 17v4h2v-4zm6 4h2v-4h-2zm-6 0v-4h2v4zm10 0h2v-4h-2z"/></svg>;
+const ShieldIcon2 = () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>;
+const UsersIcon = () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>;
+const FileTextIcon = () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>;
+const CreditCardIcon = () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>;
+const MessageSquareIcon = () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>;
+const BarChartIcon = () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg>;
+const SettingsIcon = () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 2.83 0l-.06.06a1.65 1.65 0 0 0 .33-1.82V9a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0 2.83l.06.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0-1.51 1z"/></svg>;
+const LogOutIcon = () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>;
+const ClockIcon = () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>;
+const TaskIcon = () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>;
+const ChartIcon = () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="20" x2="18" y2="9"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="15"/></svg>;
+const CalendarIcon = () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>;
+const ChevronRightIcon = () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>;
+const SearchIcon = () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>;
+const BellIcon = () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>;
+
+const iconMap = {
+  Shield: ShieldIcon,
+  Home: HomeIcon,
+  Building: BuildingIcon,
+  Shield: ShieldIcon,
+  Users: UsersIcon,
+  FileText: FileTextIcon,
+  CreditCard: CreditCardIcon,
+  MessageSquare: MessageSquareIcon,
+  BarChart: BarChartIcon,
+  Settings: SettingsIcon,
+  LogOut: LogOutIcon,
+  Clock: ClockIcon,
+  Task: TaskIcon,
+  Chart: ChartIcon,
+  Calendar: CalendarIcon,
+  ChevronRight: ChevronRightIcon,
+  Search: SearchIcon,
+  Bell: BellIcon,
+};
+
 const Sidebar = ({ role, onLogout }) => {
   const navigate = useNavigate();
   const [activeNav, setActiveNav] = useState('');
 
   const navItems = {
     system_admin: [
-      { icon: Icons.Home, label: 'System Dashboard', path: '/system/dashboard', section: 'System' },
-      { icon: Icons.Building, label: 'Companies', path: '/system/companies', section: 'System' },
-      { icon: Icons.Shield, label: 'Admin Portal', path: '/admin/portal', section: 'Admin' },
-      { icon: Icons.Users, label: 'User Management', path: '/admin/users', section: 'Admin' },
-      { icon: Icons.Building, label: 'Departments', path: '/admin/departments', section: 'Admin' },
-      { icon: Icons.FileText, label: 'Audit Logs', path: '/admin/audit-logs', section: 'Admin' },
-      { icon: Icons.Shield, label: 'Plans', path: '/admin/plans', section: 'Admin' },
-      { icon: Icons.Users, label: 'Customers', path: '/admin/customers', section: 'Admin' },
-      { icon: Icons.Users, label: 'Staff Customers', path: '/staff/customers', section: 'Staff' },
-      { icon: Icons.FileText, label: 'Policies', path: '/admin/policies', section: 'Admin' },
-      { icon: Icons.BarChart, label: 'Claims', path: '/admin/claims', section: 'Admin' },
-      { icon: Icons.CreditCard, label: 'Payments', path: '/admin/payments', section: 'Admin' },
-      { icon: Icons.Users, label: 'Employees', path: '/workforce/employees', section: 'Workforce' },
-      { icon: Icons.Clock, label: 'Attendance', path: '/workforce/attendance', section: 'Workforce' },
-      { icon: Icons.Task, label: 'Task Management', path: '/workforce/tasks', section: 'Workforce' },
-      { icon: Icons.Chart, label: 'Staff Performance', path: '/workforce/performance', section: 'Workforce' },
-      { icon: Icons.Calendar, label: 'Monthly Comparisons', path: '/workforce/monthly', section: 'Workforce' },
-      { icon: Icons.FileText, label: 'Reports', path: '/workforce/reports', section: 'Workforce' },
-      { icon: Icons.Bell, label: 'Notifications', path: '/workforce/notifications', section: 'Workforce' },
-      { icon: Icons.Calendar, label: 'Leave Requests', path: '/workforce/leave-requests', section: 'Workforce' },
-      { icon: Icons.Clock, label: 'Team Attendance', path: '/manager/attendance', section: 'Management' },
-      { icon: Icons.Task, label: 'Team Tasks', path: '/manager/tasks', section: 'Management' },
-      { icon: Icons.CheckCircle, label: 'Approvals', path: '/manager/approvals', section: 'Management' }
+      { icon: HomeIcon, label: 'System Dashboard', path: '/system/dashboard', section: 'System' },
+      { icon: BuildingIcon, label: 'Companies', path: '/system/companies', section: 'System' },
+      { icon: ShieldIcon, label: 'Admin Portal', path: '/admin/portal', section: 'Admin' },
+      { icon: UsersIcon, label: 'User Management', path: '/admin/users', section: 'Admin' },
+      { icon: BuildingIcon, label: 'Departments', path: '/admin/departments', section: 'Admin' },
+      { icon: FileTextIcon, label: 'Audit Logs', path: '/admin/audit-logs', section: 'Admin' },
+      { icon: ShieldIcon, label: 'Plans', path: '/admin/plans', section: 'Admin' },
+      { icon: UsersIcon, label: 'Customers', path: '/admin/customers', section: 'Admin' },
+      { icon: UsersIcon, label: 'Staff Customers', path: '/staff/customers', section: 'Staff' },
+      { icon: FileTextIcon, label: 'Policies', path: '/admin/policies', section: 'Admin' },
+      { icon: BarChartIcon, label: 'Claims', path: '/admin/claims', section: 'Admin' },
+      { icon: CreditCardIcon, label: 'Payments', path: '/admin/payments', section: 'Admin' },
+      { icon: UsersIcon, label: 'Employees', path: '/workforce/employees', section: 'Workforce' },
+      { icon: ClockIcon, label: 'Attendance', path: '/workforce/attendance', section: 'Workforce' },
+      { icon: TaskIcon, label: 'Task Management', path: '/workforce/tasks', section: 'Workforce' },
+      { icon: ChartIcon, label: 'Staff Performance', path: '/workforce/performance', section: 'Workforce' },
+      { icon: CalendarIcon, label: 'Monthly Comparisons', path: '/workforce/monthly', section: 'Workforce' },
+      { icon: FileTextIcon, label: 'Reports', path: '/workforce/reports', section: 'Workforce' },
+      { icon: BellIcon, label: 'Notifications', path: '/workforce/notifications', section: 'Workforce' },
+      { icon: CalendarIcon, label: 'Leave Requests', path: '/workforce/leave-requests', section: 'Workforce' },
+      { icon: ClockIcon, label: 'Team Attendance', path: '/manager/attendance', section: 'Management' },
+      { icon: TaskIcon, label: 'Team Tasks', path: '/manager/tasks', section: 'Management' },
+      { icon: ShieldIcon, label: 'Approvals', path: '/manager/approvals', section: 'Management' }
     ],
     company_admin: [
-      { icon: Icons.Home, label: 'Company Dashboard', path: '/admin', section: 'Company' },
-      { icon: Icons.Shield, label: 'Admin Portal', path: '/admin/portal', section: 'Admin' },
-      { icon: Icons.Users, label: 'User Management', path: '/admin/users', section: 'Admin' },
-      { icon: Icons.Building, label: 'Departments', path: '/admin/departments', section: 'Admin' },
-      { icon: Icons.FileText, label: 'Audit Logs', path: '/admin/audit-logs', section: 'Admin' },
-      { icon: Icons.Users, label: 'Customers', path: '/admin/customers', section: 'Company' },
-      { icon: Icons.Users, label: 'Staff Customers', path: '/staff/customers', section: 'Staff' },
-      { icon: Icons.FileText, label: 'Policies', path: '/admin/policies', section: 'Company' },
-      { icon: Icons.BarChart, label: 'Claims', path: '/admin/claims', section: 'Company' },
-      { icon: Icons.CreditCard, label: 'Payments', path: '/admin/payments', section: 'Company' },
-      { icon: Icons.Shield, label: 'Plans', path: '/admin/plans', section: 'Company' },
-      { icon: Icons.Settings, label: 'Settings', path: '/admin/settings', section: 'Company' },
-      { icon: Icons.Users, label: 'Employees', path: '/workforce/employees', section: 'Workforce' },
-      { icon: Icons.Clock, label: 'Attendance', path: '/workforce/attendance', section: 'Workforce' },
-      { icon: Icons.Task, label: 'Task Management', path: '/workforce/tasks', section: 'Workforce' },
-      { icon: Icons.Chart, label: 'Staff Performance', path: '/workforce/performance', section: 'Workforce' },
-      { icon: Icons.Calendar, label: 'Monthly Comparisons', path: '/workforce/monthly', section: 'Workforce' },
-      { icon: Icons.FileText, label: 'Reports', path: '/workforce/reports', section: 'Workforce' },
-      { icon: Icons.Bell, label: 'Notifications', path: '/workforce/notifications', section: 'Workforce' },
-      { icon: Icons.Calendar, label: 'Leave Requests', path: '/workforce/leave-requests', section: 'Workforce' },
-      { icon: Icons.Clock, label: 'Team Attendance', path: '/manager/attendance', section: 'Management' },
-      { icon: Icons.Task, label: 'Team Tasks', path: '/manager/tasks', section: 'Management' },
-      { icon: Icons.CheckCircle, label: 'Approvals', path: '/manager/approvals', section: 'Management' }
+      { icon: HomeIcon, label: 'Company Dashboard', path: '/admin', section: 'Company' },
+      { icon: ShieldIcon, label: 'Admin Portal', path: '/admin/portal', section: 'Admin' },
+      { icon: UsersIcon, label: 'User Management', path: '/admin/users', section: 'Admin' },
+      { icon: BuildingIcon, label: 'Departments', path: '/admin/departments', section: 'Admin' },
+      { icon: FileTextIcon, label: 'Audit Logs', path: '/admin/audit-logs', section: 'Admin' },
+      { icon: UsersIcon, label: 'Customers', path: '/admin/customers', section: 'Company' },
+      { icon: UsersIcon, label: 'Staff Customers', path: '/staff/customers', section: 'Staff' },
+      { icon: FileTextIcon, label: 'Policies', path: '/admin/policies', section: 'Company' },
+      { icon: BarChartIcon, label: 'Claims', path: '/admin/claims', section: 'Company' },
+      { icon: CreditCardIcon, label: 'Payments', path: '/admin/payments', section: 'Company' },
+      { icon: ShieldIcon, label: 'Plans', path: '/admin/plans', section: 'Company' },
+      { icon: SettingsIcon, label: 'Settings', path: '/admin/settings', section: 'Company' },
+      { icon: UsersIcon, label: 'Employees', path: '/workforce/employees', section: 'Workforce' },
+      { icon: ClockIcon, label: 'Attendance', path: '/workforce/attendance', section: 'Workforce' },
+      { icon: TaskIcon, label: 'Task Management', path: '/workforce/tasks', section: 'Workforce' },
+      { icon: ChartIcon, label: 'Staff Performance', path: '/workforce/performance', section: 'Workforce' },
+      { icon: CalendarIcon, label: 'Monthly Comparisons', path: '/workforce/monthly', section: 'Workforce' },
+      { icon: FileTextIcon, label: 'Reports', path: '/workforce/reports', section: 'Workforce' },
+      { icon: BellIcon, label: 'Notifications', path: '/workforce/notifications', section: 'Workforce' },
+      { icon: CalendarIcon, label: 'Leave Requests', path: '/workforce/leave-requests', section: 'Workforce' },
+      { icon: ClockIcon, label: 'Team Attendance', path: '/manager/attendance', section: 'Management' },
+      { icon: TaskIcon, label: 'Team Tasks', path: '/manager/tasks', section: 'Management' },
+      { icon: ShieldIcon, label: 'Approvals', path: '/manager/approvals', section: 'Management' }
     ],
     department_manager: [
-      { icon: Icons.Home, label: 'Manager Dashboard', path: '/manager/dashboard', section: 'Management' },
-      { icon: Icons.Clock, label: 'Team Attendance', path: '/manager/attendance', section: 'Management' },
-      { icon: Icons.Task, label: 'Team Tasks', path: '/manager/tasks', section: 'Management' },
-      { icon: Icons.CheckCircle, label: 'Approvals', path: '/manager/approvals', section: 'Management' }
+      { icon: HomeIcon, label: 'Manager Dashboard', path: '/manager/dashboard', section: 'Management' },
+      { icon: ClockIcon, label: 'Team Attendance', path: '/manager/attendance', section: 'Management' },
+      { icon: TaskIcon, label: 'Team Tasks', path: '/manager/tasks', section: 'Management' },
+      { icon: ShieldIcon, label: 'Approvals', path: '/manager/approvals', section: 'Management' }
     ],
     hr_manager: [
-      { icon: Icons.Home, label: 'Manager Dashboard', path: '/manager/dashboard', section: 'Management' },
-      { icon: Icons.Clock, label: 'Team Attendance', path: '/manager/attendance', section: 'Management' },
-      { icon: Icons.Task, label: 'Team Tasks', path: '/manager/tasks', section: 'Management' },
-      { icon: Icons.CheckCircle, label: 'Approvals', path: '/manager/approvals', section: 'Management' },
-      { icon: Icons.Users, label: 'Employees', path: '/workforce/employees', section: 'Workforce' },
-      { icon: Icons.Calendar, label: 'Leave Requests', path: '/workforce/leave-requests', section: 'Workforce' }
+      { icon: HomeIcon, label: 'Manager Dashboard', path: '/manager/dashboard', section: 'Management' },
+      { icon: ClockIcon, label: 'Team Attendance', path: '/manager/attendance', section: 'Management' },
+      { icon: TaskIcon, label: 'Team Tasks', path: '/manager/tasks', section: 'Management' },
+      { icon: ShieldIcon, label: 'Approvals', path: '/manager/approvals', section: 'Management' },
+      { icon: UsersIcon, label: 'Employees', path: '/workforce/employees', section: 'Workforce' },
+      { icon: CalendarIcon, label: 'Leave Requests', path: '/workforce/leave-requests', section: 'Workforce' }
     ],
     employee: [
-      { icon: Icons.Home, label: 'My Dashboard', path: '/workforce/attendance', section: 'My Work' },
-      { icon: Icons.Clock, label: 'Attendance', path: '/workforce/attendance', section: 'My Work' },
-      { icon: Icons.Task, label: 'My Tasks', path: '/workforce/tasks', section: 'My Work' },
-      { icon: Icons.Chart, label: 'My Performance', path: '/workforce/performance', section: 'My Work' },
-      { icon: Icons.Bell, label: 'Notifications', path: '/workforce/notifications', section: 'My Work' },
-      { icon: Icons.Calendar, label: 'Leave Requests', path: '/workforce/leave-requests', section: 'My Work' }
+      { icon: HomeIcon, label: 'My Dashboard', path: '/workforce/attendance', section: 'My Work' },
+      { icon: ClockIcon, label: 'Attendance', path: '/workforce/attendance', section: 'My Work' },
+      { icon: TaskIcon, label: 'My Tasks', path: '/workforce/tasks', section: 'My Work' },
+      { icon: ChartIcon, label: 'My Performance', path: '/workforce/performance', section: 'My Work' },
+      { icon: BellIcon, label: 'Notifications', path: '/workforce/notifications', section: 'My Work' },
+      { icon: CalendarIcon, label: 'Leave Requests', path: '/workforce/leave-requests', section: 'My Work' }
     ],
     customer: [
-      { icon: Icons.Home, label: 'Dashboard', path: '/customer', section: 'Customer' },
-      { icon: Icons.Shield, label: 'Plans', path: '/customer/plans', section: 'Customer' },
-      { icon: Icons.FileText, label: 'My Policies', path: '/customer/policies', section: 'Customer' },
-      { icon: Icons.BarChart, label: 'Claims', path: '/customer/claims', section: 'Customer' },
-      { icon: Icons.CreditCard, label: 'Payments', path: '/customer/payments', section: 'Customer' },
-      { icon: Icons.MessageSquare, label: 'Support', path: '/customer/tickets', section: 'Customer' }
+      { icon: HomeIcon, label: 'Dashboard', path: '/customer', section: 'Customer' },
+      { icon: ShieldIcon, label: 'Plans', path: '/customer/plans', section: 'Customer' },
+      { icon: FileTextIcon, label: 'My Policies', path: '/customer/policies', section: 'Customer' },
+      { icon: BarChartIcon, label: 'Claims', path: '/customer/claims', section: 'Customer' },
+      { icon: CreditCardIcon, label: 'Payments', path: '/customer/payments', section: 'Customer' },
+      { icon: MessageSquareIcon, label: 'Support', path: '/customer/tickets', section: 'Customer' }
     ],
     provider: [
-      { icon: Icons.Home, label: 'Dashboard', path: '/provider', section: 'Support' },
-      { icon: Icons.MessageSquare, label: 'Tickets', path: '/provider/tickets', section: 'Support' },
-      { icon: Icons.BarChart, label: 'Claims', path: '/provider/claims', section: 'Support' },
-      { icon: Icons.Users, label: 'Customers', path: '/provider/customers', section: 'Support' }
+      { icon: HomeIcon, label: 'Dashboard', path: '/provider', section: 'Support' },
+      { icon: MessageSquareIcon, label: 'Tickets', path: '/provider/tickets', section: 'Support' },
+      { icon: BarChartIcon, label: 'Claims', path: '/provider/claims', section: 'Support' },
+      { icon: UsersIcon, label: 'Customers', path: '/provider/customers', section: 'Support' }
     ]
   };
 
@@ -259,7 +298,7 @@ const Sidebar = ({ role, onLogout }) => {
     <div className="sidebar">
       <div className="sidebar-header">
         <div className="sidebar-logo">
-          <Icons.Shield /> InsuraVault
+          <ShieldIcon /> InsuraVault
         </div>
       </div>
       <nav className="sidebar-nav">
@@ -290,7 +329,7 @@ const Sidebar = ({ role, onLogout }) => {
       </nav>
       <div style={{ padding: '16px 24px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
         <div className="nav-item" onClick={onLogout}>
-          <Icons.LogOut /> Logout
+          <LogOutIcon /> Logout
         </div>
       </div>
     </div>
