@@ -1,4 +1,4 @@
-require('dotenv').config();
+             require('dotenv').config();
 const { query, initPool } = require('./src/config/db');
 const bcrypt = require('bcryptjs');
 

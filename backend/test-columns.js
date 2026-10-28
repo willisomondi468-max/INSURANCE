@@ -1,4 +1,4 @@
-require('dotenv').config();
+   require('dotenv').config();
 const { Pool } = require('pg');
 const p = new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } });
 p.query("SELECT table_name, column_name FROM information_schema.columns WHERE table_schema='public' AND table_name IN ('users','customer_details') ORDER BY table_name, ordinal_position")
