@@ -1,89 +1,92 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PhotoCard, ImageCarousel, StatCounter } from '../components/PhotoComponents';
 import api from '../api.js';
 
 /**
- * Local photography served from /public/images (downloaded from Unsplash).
- * Served same-origin so nothing blocks it, and works offline.
+ * SVG data URI generator - avoids CORB issues with external images
  */
-const img = (name) => `${process.env.PUBLIC_URL || ''}/images/${name}`;
+const svgImage = (text, w = 1600, h = 900) => `data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22${w}%22 height=%22${h}%22%3E%3Crect width=%22100%25%22 height=%22100%25%22 fill=%22%23061321%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 font-family=%22Arial%22 font-size=%2240%22 fill=%22%23FFFFFF%22 text-anchor=%22middle%22 dominant-baseline=%22middle%22%3E${encodeURIComponent(text)}%3C/text%3E%3C/svg%3E`;
+
+const svgCardImage = (text, w = 800, h = 600) => `data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22${w}%22 height=%22${h}%22%3E%3Crect width=%22100%25%22 height=%22100%25%22 fill=%22%230B2035%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 font-family=%22Arial%22 font-size=%2232%22 fill=%22%23FFFFFF%22 text-anchor=%22middle%22 dominant-baseline=%22middle%22%3E${encodeURIComponent(text)}%3C/text%3E%3C/svg%3E`;
 
 /**
  * Homepage - Cinematic premium insurance landing page
- * Hero carousel, service cards, stats, testimonials, CTA sections
  */
 const HomePage = () => {
   const [stats, setStats] = useState(null);
-  const [, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
   const authToken = localStorage.getItem('token');
   const navigate = useNavigate();
 
-  const fetchStats = useCallback(async () => {
-    if (!authToken) {
-      setLoading(false);
-      return;
-    }
-    try {
-      const res = await api.get('/system/dashboard', authToken);
-      if (res.success) setStats(res.data);
-    } catch (e) {
-      // Fallback mock stats if system endpoint not available
-      setStats({
-        companies: { cnt: 150, active: 142 },
-        usersByRole: { system_admin: 5, company_admin: 23, employee: 450, customer: 12000 },
-        tasksByStatus: { completed: 8500, in_progress: 1200, pending_review: 300 },
-        attendanceToday: { present: 420, on_break: 45, clocked_out: 380 }
-      });
-    } finally {
-      setLoading(false);
-    }
-  }, [authToken]);
-
   useEffect(() => {
+    const fetchStats = async () => {
+      if (!authToken) {
+        setLoading(false);
+        return;
+      }
+      try {
+        const res = await api.get('/system/dashboard', authToken);
+        if (res.success) setStats(res.data);
+      } catch (e) {
+        // Fallback
+        setStats({
+          companies: { cnt: 150, active: 142 },
+          usersByRole: { system_admin: 5, company_admin: 23, employee: 450, customer: 12000 },
+          tasksByStatus: { completed: 8500, in_progress: 1200, pending_review: 300 },
+          attendanceToday: { present: 420, on_break: 45, clocked_out: 380 }
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
     fetchStats();
-  }, [fetchStats]);
+  }, [authToken]);
 
   const heroImages = [
     {
-      url: img('hero-life.jpg'),
-      alt: 'Family at home',
+      url: svgImage('Life & Family Insurance'),
+      alt: 'Life Insurance',
       category: 'Life & Family',
       headline: 'Protecting What Matters Most.',
       subheadline: 'From your family and home to your business and investments, InsuraVault delivers protection built around your future.',
-      primaryButton: !authToken ? 'Sign In' : 'Explore Coverage',
+      category: 'Life & Family',
+      primaryButton: 'Explore Coverage',
       secondaryButton: 'Get a Quote',
-      onPrimary: () => (authToken ? navigate('/insurance/life') : navigate('/login')),
-      onSecondary: () => navigate('/quote')
+      onPrimary: () => navigate('/insurance/life'),
+      onSecondary: () => navigate('/quote/life')
     },
     {
-      url: img('hero-motor.jpg'),
-      alt: 'Car on the road',
+      url: svgImage('Motor Insurance'),
+      alt: 'Motor Insurance',
       category: 'Motor',
       headline: 'Drive with Complete Confidence.',
       subheadline: 'Comprehensive motor insurance covering accidents, theft, and third-party liability for all vehicle types.',
+      category: 'Motor',
       primaryButton: 'View Motor Plans',
       secondaryButton: 'File a Claim',
       onPrimary: () => navigate('/insurance/motor'),
       onSecondary: () => navigate('/claims/motor')
     },
     {
-      url: img('hero-business.jpg'),
-      alt: 'Modern office building',
+      url: svgImage('Business Insurance'),
+      alt: 'Business Insurance',
       category: 'Business',
       headline: 'Safeguard Your Business Future.',
       subheadline: 'Tailored commercial insurance solutions for offices, factories, and entrepreneurs of all sizes.',
+      category: 'Business',
       primaryButton: 'Business Plans',
       secondaryButton: 'Request Quote',
       onPrimary: () => navigate('/insurance/business'),
       onSecondary: () => navigate('/quote/business')
     },
     {
-      url: img('hero-aviation.jpg'),
-      alt: 'Aircraft in flight',
+      url: svgImage('Aviation Insurance'),
+      alt: 'Aviation Insurance',
       category: 'Aviation',
       headline: 'Protected at Every Altitude.',
       subheadline: 'Specialized aviation coverage for passenger aircraft, private jets, and aviation liability.',
+      category: 'Aviation',
       primaryButton: 'Aviation Coverage',
       secondaryButton: 'Learn More',
       onPrimary: () => navigate('/insurance/aviation'),
@@ -93,7 +96,7 @@ const HomePage = () => {
 
   const serviceCards = [
     {
-      imageUrl: img('hero-life.jpg'),
+      imageUrl: svgCardImage('Life Insurance'),
       category: 'Life Insurance',
       title: 'Life & Family Protection',
       description: 'Financial security for your loved ones with flexible term and whole life policies.',
@@ -102,7 +105,7 @@ const HomePage = () => {
       onClick: () => navigate('/insurance/life')
     },
     {
-      imageUrl: img('hero-motor.jpg'),
+      imageUrl: svgCardImage('Motor Insurance'),
       category: 'Motor Insurance',
       title: 'Auto & Motor Coverage',
       description: 'Comprehensive protection for cars, SUVs, and commercial vehicles against accidents and theft.',
@@ -111,7 +114,7 @@ const HomePage = () => {
       onClick: () => navigate('/insurance/motor')
     },
     {
-      imageUrl: img('card-property.jpg'),
+      imageUrl: svgCardImage('Property Insurance'),
       category: 'Property Insurance',
       title: 'Home & Property',
       description: 'Protect your residential home, commercial building, and real estate investments.',
@@ -120,7 +123,7 @@ const HomePage = () => {
       onClick: () => navigate('/insurance/property')
     },
     {
-      imageUrl: img('hero-aviation.jpg'),
+      imageUrl: svgCardImage('Aviation Insurance'),
       category: 'Aviation Insurance',
       title: 'Aviation & Aerospace',
       description: 'Specialized coverage for commercial aircraft, private jets, and aviation liability risks.',
@@ -129,7 +132,7 @@ const HomePage = () => {
       onClick: () => navigate('/insurance/aviation')
     },
     {
-      imageUrl: img('card-marine.jpg'),
+      imageUrl: svgCardImage('Marine Insurance'),
       category: 'Marine Insurance',
       title: 'Marine & Cargo',
       description: 'Cargo ships, shipping containers, ports, and yachts - protected across international waters.',
@@ -138,7 +141,7 @@ const HomePage = () => {
       onClick: () => navigate('/insurance/marine')
     },
     {
-      imageUrl: img('card-health.jpg'),
+      imageUrl: svgCardImage('Health Insurance'),
       category: 'Health Insurance',
       title: 'Health & Medical',
       description: 'Comprehensive healthcare coverage for individuals, families, and corporate groups.',
@@ -152,33 +155,32 @@ const HomePage = () => {
     {
       name: 'Sarah Chen',
       role: 'Small Business Owner',
-      image: img('avatar-sarah.jpg'),
+      image: svgCardImage('Sarah Chen', 400, 400),
       text: "InsuraVault made getting business insurance effortless. The claims process was transparent and fast - we were back in operation within days after our fire incident."
     },
     {
       name: 'Marcus Johnson',
       role: 'Fleet Manager',
-      image: img('avatar-marcus.jpg'),
+      image: svgCardImage('Marcus Johnson', 400, 400),
       text: "Managing 50+ vehicles used to be a nightmare. InsuraVault's motor insurance platform streamlined everything from quotes to claims."
     },
     {
       name: 'Elena Rodriguez',
       role: 'Homeowner',
-      image: img('avatar-elena.jpg'),
+      image: svgCardImage('Elena Rodriguez', 400, 400),
       text: "The property insurance policy covered my home renovation completely. Their customer service team guided me through every step."
     }
   ];
 
   const categories = [
-    { name: 'Life Insurance', description: 'Family protection & financial security', image: img('hero-life.jpg') },
-    { name: 'Motor Insurance', description: 'Auto, SUV & commercial vehicles', image: img('hero-motor.jpg') },
-    { name: 'Property Insurance', description: 'Homes, offices & real estate', image: img('card-property.jpg') },
-    { name: 'Aviation Insurance', description: 'Aircraft & aviation liability', image: img('hero-aviation.jpg') },
-    { name: 'Marine Insurance', description: 'Cargo, ships & watercraft', image: img('card-marine.jpg') },
-    { name: 'Health Insurance', description: 'Medical & healthcare coverage', image: img('card-health.jpg') }
+    { name: 'Life Insurance', description: 'Family protection & financial security', image: svgCardImage('Life Insurance', 600, 600) },
+    { name: 'Motor Insurance', description: 'Auto, SUV & commercial vehicles', image: svgCardImage('Motor Insurance', 600, 600) },
+    { name: 'Property Insurance', description: 'Homes, offices & real estate', image: svgCardImage('Property Insurance', 600, 600) },
+    { name: 'Aviation Insurance', description: 'Aircraft & aviation liability', image: svgCardImage('Aviation Insurance', 600, 600) },
+    { name: 'Marine Insurance', description: 'Cargo, ships & watercraft', image: svgCardImage('Marine Insurance', 600, 600) },
+    { name: 'Health Insurance', description: 'Medical & healthcare coverage', image: svgCardImage('Health Insurance', 600, 600) }
   ];
 
-  // Compute stats from backend or fallback
   const totalPolicies = (stats?.tasksByStatus?.completed || 8500) + (stats?.tasksByStatus?.in_progress || 1200);
   const claimsProcessed = stats?.tasksByStatus?.pending_review || 300;
 
@@ -204,7 +206,7 @@ const HomePage = () => {
       </section>
 
       {/* Animated Stats */}
-      <section className="stats-section" style={{ padding: '80px 24px', background: 'linear-gradient(180deg, #081B33 0%, #0F2A4A 100%)', color: 'white' }}>
+      <section className="stats-section" style={{ padding: '80px 24px', background: 'linear-gradient(180deg, #061321 0%, #0B2035 100%)', color: 'white' }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: '60px' }}>
             <h2 style={{ fontSize: '32px', fontWeight: 800, marginBottom: '16px' }}>Trusted by Thousands</h2>
@@ -223,7 +225,7 @@ const HomePage = () => {
       <section className="services-section" style={{ padding: '100px 24px', background: 'var(--soft-bg)' }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
           <div className="section-header" style={{ textAlign: 'center', marginBottom: '60px' }}>
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '8px 16px', background: 'rgba(23, 105, 255, 0.1)', borderRadius: '999px', fontSize: '12px', fontWeight: 700, color: 'var(--royal-blue)', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '8px 16px', background: 'rgba(22, 119, 255, 0.1)', borderRadius: '999px', fontSize: '12px', fontWeight: 700, color: 'var(--royal-blue)', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
               Insurance Solutions
             </span>
             <h2 style={{ fontSize: '32px', fontWeight: 800, marginBottom: '16px' }}>Choose Your Coverage</h2>
@@ -265,14 +267,14 @@ const HomePage = () => {
             {categories.map((cat, idx) => (
               <div key={idx} className="category-card" style={{ 
                 background: 'var(--white)', 
-                border: '1px solid rgba(8,27,51,0.06)', 
+                border: '1px solid rgba(6,19,33,0.06)', 
                 borderRadius: 'var(--radius-lg)', 
                 padding: '24px', 
                 textAlign: 'center', 
                 transition: 'all 0.3s ease',
                 cursor: 'pointer'
               }} onMouseEnter={(e) => { e.currentTarget.style.boxShadow = 'var(--shadow-lg)'; e.currentTarget.style.transform = 'translateY(-4px)'; }} onMouseLeave={(e) => { e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.transform = 'none'; }}>
-                <div style={{ width: '64px', height: '64px', background: 'rgba(23,105,255,0.1)', borderRadius: 'var(--radius-md)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', marginBottom: '16px' }}>
+                <div style={{ width: '64px', height: '64px', background: 'rgba(22,119,255,0.1)', borderRadius: 'var(--radius-md)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', marginBottom: '16px' }}>
                   <img src={cat.image} alt={cat.name} loading="lazy" style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '8px' }} />
                 </div>
                 <h3 style={{ fontSize: '16px', fontWeight: 700, marginBottom: '8px' }}>{cat.name}</h3>
@@ -315,8 +317,8 @@ const HomePage = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="cta-section" style={{ padding: '100px 24px', background: 'linear-gradient(135deg, #081B33 0%, #0F2A4A 100%)', position: 'relative', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'radial-gradient(circle at 20% 30%, rgba(23,105,255,0.15) 0%, transparent 50%)', pointerEvents: 'none' }} />
+      <section className="cta-section" style={{ padding: '100px 24px', background: 'linear-gradient(135deg, #061321 0%, #0B2035 100%)', position: 'relative', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'radial-gradient(circle at 20% 30%, rgba(22,119,255,0.15) 0%, transparent 50%)', pointerEvents: 'none' }} />
         <div style={{ maxWidth: '800px', margin: '0 auto', textAlign: 'center', position: 'relative', zIndex: 1 }}>
           <h2 style={{ fontSize: '34px', fontWeight: 800, color: 'white', marginBottom: '20px', letterSpacing: '-0.02em' }}>Ready to Get Protected?</h2>
           <p style={{ fontSize: '18px', color: 'rgba(255,255,255,0.9)', marginBottom: '32px', maxWidth: '600px', margin: '0 auto 32px' }}>Join thousands of satisfied customers who trust InsuraVault for their insurance needs.</p>

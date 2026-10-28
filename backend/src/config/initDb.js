@@ -105,6 +105,22 @@ const initializeDatabase = async () => {
     `);
     console.log('✅ Companies table created');
 
+    // Users table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS users (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        company_id UUID REFERENCES companies(id) ON DELETE CASCADE,
+        email VARCHAR(255) UNIQUE NOT NULL,
+        password_hash VARCHAR(255) NOT NULL,
+        role VARCHAR(50) NOT NULL DEFAULT 'customer',
+        phone VARCHAR(20),
+        is_active BOOLEAN DEFAULT true,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+    console.log('✅ Users table created');
+
     // Insurance plans table
     await client.query(`
       CREATE TABLE IF NOT EXISTS insurance_plans (

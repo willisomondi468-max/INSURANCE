@@ -3,20 +3,25 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ImageCarousel } from '../components/PhotoComponents';
 
 /**
+ * SVG data URI generator - avoids CORB issues with external images
+ */
+const svgImage = (text, w = 1600, h = 900) => `data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22${w}%22 height=%22${h}%22%3E%3Crect width=%22100%25%22 height=%22100%25%22 fill=%22%23061321%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 font-family=%22Arial%22 font-size=%2240%22 fill=%22%23FFFFFF%22 text-anchor=%22middle%22 dominant-baseline=%22middle%22%3E${encodeURIComponent(text)}%3C/text%3E%3C/svg%3E`;
+
+const svgCardImage = (text, w = 800, h = 600) => `data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22${w}%22 height=%22${h}%22%3E%3Crect width=%22100%25%22 height=%22100%25%22 fill=%22%230B2035%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 font-family=%22Arial%22 font-size=%2232%22 fill=%22%23FFFFFF%22 text-anchor=%22middle%22 dominant-baseline=%22middle%22%3E${encodeURIComponent(text)}%3C/text%3E%3C/svg%3E`;
+
+/**
  * InsuranceCategoryPage - Individual insurance category page
  * Supports: motor, property, aviation, life, health, marine, etc.
  * Features photographic hero, coverage options, quote forms, benefits
  */
-const img = (name) => `${process.env.PUBLIC_URL || ''}/images/${name}`;
-
 const CATEGORY_DATA = {
   motor: {
     name: 'Motor Insurance',
     tagline: 'Comprehensive protection for your vehicle',
     heroImages: [
-      { url: img('hero-motor.jpg'), alt: 'Car on road', headline: 'Drive with Complete Confidence', subheadline: 'From accidents to theft, we cover every mile of your journey.', primaryButton: 'Get Motor Quote', secondaryButton: 'File a Claim', onPrimary: null, onSecondary: null },
-      { url: img('card-motor.jpg'), alt: 'Vehicle inspection', headline: 'Accident Protection', subheadline: 'Fast claims processing and approved repair networks nationwide.', primaryButton: 'Start Claim', secondaryButton: 'View Plans', onPrimary: null, onSecondary: null },
-      { url: img('hero-motor.jpg'), alt: 'Car on scenic road', headline: 'Third-Party Liability', subheadline: 'Legal protection and coverage for damage to other vehicles and property.', primaryButton: 'Learn More', secondaryButton: 'Get Quote', onPrimary: null, onSecondary: null }
+      { url: svgImage('Motor Insurance'), alt: 'Car on road', category: 'Motor', headline: 'Drive with Complete Confidence.', subheadline: 'From accidents to theft, we cover every mile of your journey.', primaryButton: 'Get Motor Quote', secondaryButton: 'File a Claim', onPrimary: null, onSecondary: null },
+      { url: svgImage('Vehicle Inspection'), alt: 'Vehicle inspection', category: 'Motor', headline: 'Accident Protection.', subheadline: 'Fast claims processing and approved repair networks nationwide.', primaryButton: 'Start Claim', secondaryButton: 'View Plans', onPrimary: null, onSecondary: null },
+      { url: svgImage('Third-Party Liability'), alt: 'Car on scenic road', category: 'Motor', headline: 'Third-Party Liability.', subheadline: 'Legal protection and coverage for damage to other vehicles and property.', primaryButton: 'Learn More', secondaryButton: 'Get Quote', onPrimary: null, onSecondary: null }
     ],
     coverages: [
       { title: 'Accidental Damage', description: 'Coverage for repairs after collisions, fire, or natural disasters.', icon: '🛡️' },
@@ -40,8 +45,8 @@ const CATEGORY_DATA = {
     name: 'Property Insurance',
     tagline: 'Protect your home and real estate',
     heroImages: [
-      { url: img('hero-business.jpg'), alt: 'Modern residential house', headline: 'Home Protection, Simplified', subheadline: 'From fire to flood, your home is covered against life\'s unexpected events.', primaryButton: 'Get Property Quote', secondaryButton: 'File a Claim', onPrimary: null, onSecondary: null },
-      { url: img('card-property.jpg'), alt: 'Commercial glass buildings', headline: 'Commercial Property', subheadline: 'Office buildings, retail spaces, and commercial real estate coverage.', primaryButton: 'Commercial Plans', secondaryButton: 'Get Quote', onPrimary: null, onSecondary: null }
+      { url: svgImage('Property Insurance'), alt: 'Modern residential house', category: 'Property', headline: 'Home Protection, Simplified.', subheadline: 'From fire to flood, your home is covered against life\'s unexpected events.', primaryButton: 'Get Property Quote', secondaryButton: 'File a Claim', onPrimary: null, onSecondary: null },
+      { url: svgImage('Commercial Property'), alt: 'Commercial glass buildings', category: 'Property', headline: 'Commercial Property.', subheadline: 'Office buildings, retail spaces, and commercial real estate coverage.', primaryButton: 'Commercial Plans', secondaryButton: 'Get Quote', onPrimary: null, onSecondary: null }
     ],
     coverages: [
       { title: 'Fire & Smoke Damage', description: 'Full coverage for fire, smoke, and explosion damage.', icon: '🔥' },
@@ -65,8 +70,8 @@ const CATEGORY_DATA = {
     name: 'Aviation Insurance',
     tagline: 'Protected at every altitude',
     heroImages: [
-      { url: img('hero-aviation.jpg'), alt: 'Commercial airplane flying', headline: 'Aircraft Coverage, Elevated', subheadline: 'Specialized insurance for passenger aircraft, private jets, and helicopters.', primaryButton: 'Get Aviation Quote', secondaryButton: 'File a Claim', onPrimary: null, onSecondary: null },
-      { url: img('hero-aviation.jpg'), alt: 'Private jet airport', headline: 'Aviation Liability', subheadline: 'Third-party liability, passenger protection, and hull coverage.', primaryButton: 'View Plans', secondaryButton: 'Get Quote', onPrimary: null, onSecondary: null }
+      { url: svgImage('Aviation Insurance'), alt: 'Commercial airplane flying', category: 'Aviation', headline: 'Aircraft Coverage, Elevated.', subheadline: 'Specialized insurance for passenger aircraft, private jets, and helicopters.', primaryButton: 'Get Aviation Quote', secondaryButton: 'File a Claim', onPrimary: null, onSecondary: null },
+      { url: svgImage('Private Jet'), alt: 'Private jet airport', category: 'Aviation', headline: 'Aviation Liability.', subheadline: 'Third-party liability, passenger protection, and hull coverage.', primaryButton: 'View Plans', secondaryButton: 'Get Quote', onPrimary: null, onSecondary: null }
     ],
     coverages: [
       { title: 'Hull Coverage', description: 'Physical damage to the aircraft itself.', icon: '✈️' },
@@ -90,8 +95,8 @@ const CATEGORY_DATA = {
     name: 'Life Insurance',
     tagline: 'Financial security for your loved ones',
     heroImages: [
-      { url: img('hero-life.jpg'), alt: 'Happy family', headline: 'Family Protection, Guaranteed', subheadline: 'Term and whole life policies that secure your family\'s future.', primaryButton: 'Get Life Quote', secondaryButton: 'File a Claim', onPrimary: null, onSecondary: null },
-      { url: img('hero-life.jpg'), alt: 'Elderly couple', headline: 'Legacy Planning', subheadline: 'Whole life insurance with cash value and estate protection.', primaryButton: 'View Plans', secondaryButton: 'Get Quote', onPrimary: null, onSecondary: null }
+      { url: svgImage('Life Insurance'), alt: 'Happy family', category: 'Life', headline: 'Family Protection, Guaranteed.', subheadline: 'Term and whole life policies that secure your family\'s future.', primaryButton: 'Get Life Quote', secondaryButton: 'File a Claim', onPrimary: null, onSecondary: null },
+      { url: svgImage('Legacy Planning'), alt: 'Elderly couple', category: 'Life', headline: 'Legacy Planning.', subheadline: 'Whole life insurance with cash value and estate protection.', primaryButton: 'View Plans', secondaryButton: 'Get Quote', onPrimary: null, onSecondary: null }
     ],
     coverages: [
       { title: 'Term Life', description: 'Affordable coverage for a specific period.', icon: '📄' },
@@ -115,8 +120,8 @@ const CATEGORY_DATA = {
     name: 'Health Insurance',
     tagline: 'Comprehensive healthcare coverage',
     heroImages: [
-      { url: img('card-health.jpg'), alt: 'Doctor consulting patient', headline: 'Healthcare, Simplified', subheadline: 'Individual, family, and group health insurance with nationwide provider network.', primaryButton: 'Get Health Quote', secondaryButton: 'File a Claim', onPrimary: null, onSecondary: null },
-      { url: img('card-health.jpg'), alt: 'Hospital corridor', headline: 'Hospitalization Coverage', subheadline: 'Inpatient care, surgeries, and emergency treatment covered.', primaryButton: 'View Plans', secondaryButton: 'Get Quote', onPrimary: null, onSecondary: null }
+      { url: svgImage('Health Insurance'), alt: 'Doctor consulting patient', category: 'Health', headline: 'Healthcare, Simplified.', subheadline: 'Individual, family, and group health insurance with nationwide provider network.', primaryButton: 'Get Health Quote', secondaryButton: 'File a Claim', onPrimary: null, onSecondary: null },
+      { url: svgImage('Hospital'), alt: 'Hospital corridor', category: 'Health', headline: 'Hospitalization Coverage.', subheadline: 'Inpatient care, surgeries, and emergency treatment covered.', primaryButton: 'View Plans', secondaryButton: 'Get Quote', onPrimary: null, onSecondary: null }
     ],
     coverages: [
       { title: 'Hospitalization', description: 'Room, board, and nursing care.', icon: '🏥' },
@@ -140,8 +145,8 @@ const CATEGORY_DATA = {
     name: 'Marine Insurance',
     tagline: 'Protected across international waters',
     heroImages: [
-      { url: img('card-marine.jpg'), alt: 'Cargo ship', headline: 'Marine Cargo Protection', subheadline: 'Coverage for goods in transit across oceans and inland waterways.', primaryButton: 'Get Marine Quote', secondaryButton: 'File a Claim', onPrimary: null, onSecondary: null },
-      { url: img('card-marine.jpg'), alt: 'Yacht at marina', headline: 'Yacht & Pleasure Craft', subheadline: 'Recreational boats, yachts, and personal watercraft coverage.', primaryButton: 'View Plans', secondaryButton: 'Get Quote', onPrimary: null, onSecondary: null }
+      { url: svgImage('Marine Insurance'), alt: 'Cargo ship', category: 'Marine', headline: 'Marine Cargo Protection.', subheadline: 'Coverage for goods in transit across oceans and inland waterways.', primaryButton: 'Get Marine Quote', secondaryButton: 'File a Claim', onPrimary: null, onSecondary: null },
+      { url: svgImage('Yacht'), alt: 'Yacht at marina', category: 'Marine', headline: 'Yacht & Pleasure Craft.', subheadline: 'Recreational boats, yachts, and personal watercraft coverage.', primaryButton: 'View Plans', secondaryButton: 'Get Quote', onPrimary: null, onSecondary: null }
     ],
     coverages: [
       { title: 'Cargo Damage', description: 'Loss or damage to goods during transit.', icon: '📦' },
@@ -165,8 +170,8 @@ const CATEGORY_DATA = {
     name: 'Business Insurance',
     tagline: 'Safeguard your enterprise',
     heroImages: [
-      { url: img('hero-business.jpg'), alt: 'Modern office building', headline: 'Business Protection, Elevated', subheadline: 'Commercial insurance for offices, factories, and entrepreneurs.', primaryButton: 'Get Business Quote', secondaryButton: 'File a Claim', onPrimary: null, onSecondary: null },
-      { url: img('card-property.jpg'), alt: 'Factory warehouse', headline: 'Commercial Property', subheadline: 'Building, equipment, and inventory protection.', primaryButton: 'View Plans', secondaryButton: 'Get Quote', onPrimary: null, onSecondary: null }
+      { url: svgImage('Business Insurance'), alt: 'Modern office building', category: 'Business', headline: 'Business Protection, Elevated.', subheadline: 'Commercial insurance for offices, factories, and entrepreneurs.', primaryButton: 'Get Business Quote', secondaryButton: 'File a Claim', onPrimary: null, onSecondary: null },
+      { url: svgImage('Factory Warehouse'), alt: 'Factory warehouse', category: 'Business', headline: 'Commercial Property.', subheadline: 'Building, equipment, and inventory protection.', primaryButton: 'View Plans', secondaryButton: 'Get Quote', onPrimary: null, onSecondary: null }
     ],
     coverages: [
       { title: 'General Liability', description: 'Third-party bodily injury and property damage.', icon: '⚖️' },
@@ -190,8 +195,8 @@ const CATEGORY_DATA = {
     name: 'Agricultural Insurance',
     tagline: 'Protecting farms and livestock',
     heroImages: [
-      { url: img('card-property.jpg'), alt: 'Farm tractor', headline: 'Farm Protection, Rooted in Trust', subheadline: 'Crop, livestock, and equipment coverage for agricultural businesses.', primaryButton: 'Get Farm Quote', secondaryButton: 'File a Claim', onPrimary: null, onSecondary: null },
-      { url: img('card-property.jpg'), alt: 'Livestock barn', headline: 'Livestock Coverage', subheadline: 'Protection for cattle, poultry, and other farm animals.', primaryButton: 'View Plans', secondaryButton: 'Get Quote', onPrimary: null, onSecondary: null }
+      { url: svgImage('Farm Insurance'), alt: 'Farm tractor', category: 'Agriculture', headline: 'Farm Protection, Rooted in Trust.', subheadline: 'Crop, livestock, and equipment coverage for agricultural businesses.', primaryButton: 'Get Farm Quote', secondaryButton: 'File a Claim', onPrimary: null, onSecondary: null },
+      { url: svgImage('Livestock Barn'), alt: 'Livestock barn', category: 'Agriculture', headline: 'Livestock Coverage.', subheadline: 'Protection for cattle, poultry, and other farm animals.', primaryButton: 'View Plans', secondaryButton: 'Get Quote', onPrimary: null, onSecondary: null }
     ],
     coverages: [
       { title: 'Crop Insurance', description: 'Yield loss from weather, pests, or disease.', icon: '🌾' },
@@ -215,8 +220,8 @@ const CATEGORY_DATA = {
     name: 'Personal Accident Insurance',
     tagline: 'Coverage when accidents happen',
     heroImages: [
-      { url: img('hero-life.jpg'), alt: 'Construction worker safety', headline: 'Accident Protection, Guaranteed', subheadline: 'Financial support when accidents disrupt your life.', primaryButton: 'Get Accident Quote', secondaryButton: 'File a Claim', onPrimary: null, onSecondary: null },
-      { url: img('hero-life.jpg'), alt: 'First aid kit', headline: 'Emergency Assistance', subheadline: 'Emergency medical evacuation and hospitalization benefits.', primaryButton: 'View Plans', secondaryButton: 'Get Quote', onPrimary: null, onSecondary: null }
+      { url: svgImage('Personal Accident'), alt: 'Construction worker safety', category: 'Personal Accident', headline: 'Accident Protection, Guaranteed.', subheadline: 'Financial support when accidents disrupt your life.', primaryButton: 'Get Accident Quote', secondaryButton: 'File a Claim', onPrimary: null, onSecondary: null },
+      { url: svgImage('First Aid Kit'), alt: 'First aid kit', category: 'Personal Accident', headline: 'Emergency Assistance.', subheadline: 'Emergency medical evacuation and hospitalization benefits.', primaryButton: 'View Plans', secondaryButton: 'Get Quote', onPrimary: null, onSecondary: null }
     ],
     coverages: [
       { title: 'Accidental Death', description: 'Lump sum benefit to beneficiaries.', icon: '🕯️' },
@@ -255,7 +260,6 @@ const InsuranceCategoryPage = () => {
   const handleQuoteSubmit = async (e) => {
     e.preventDefault();
     setQuoteSubmitted(true);
-    // Simulate quote calculation
     await new Promise(r => setTimeout(r, 1500));
     const basePremium = catData === CATEGORY_DATA.motor ? 1200 :
                        catData === CATEGORY_DATA.property ? 800 :
@@ -300,7 +304,7 @@ const InsuranceCategoryPage = () => {
           showControls={true}
           showIndicators={true}
         />
-        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '40px 24px', background: 'linear-gradient(transparent, rgba(8,27,51,0.8))', color: 'white' }}>
+        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '40px 24px', background: 'linear-gradient(transparent, rgba(6,19,33,0.8))', color: 'white' }}>
           <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
             <h2 style={{ fontSize: '34px', fontWeight: 800, marginBottom: '16px', color: 'white' }}>{catData.name}</h2>
             <p style={{ fontSize: '18px', opacity: 0.9, maxWidth: '700px' }}>{catData.tagline}</p>
@@ -322,7 +326,7 @@ const InsuranceCategoryPage = () => {
           </div>
           <div className="grid-3" style={{ gap: '20px' }}>
             {catData.coverages.map((cov, idx) => (
-              <div key={idx} className="card" style={{ padding: '24px', border: '1px solid rgba(8,27,51,0.06)', transition: 'all 0.3s ease' }} onMouseEnter={(e) => { e.currentTarget.style.boxShadow = 'var(--shadow-md)'; }} onMouseLeave={(e) => { e.currentTarget.style.boxShadow = 'none'; }}>
+              <div key={idx} className="card" style={{ padding: '24px', border: '1px solid rgba(6,27,51,0.06)', transition: 'all 0.3s ease' }} onMouseEnter={(e) => { e.currentTarget.style.boxShadow = 'var(--shadow-md)'; }} onMouseLeave={(e) => { e.currentTarget.style.boxShadow = 'none'; }}>
                 <div style={{ fontSize: '32px', marginBottom: '16px' }}>{cov.icon}</div>
                 <h3 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '10px', color: 'var(--text-primary)' }}>{cov.title}</h3>
                 <p style={{ fontSize: '14px', color: 'var(--text-secondary)', lineHeight: 1.6 }}>{cov.description}</p>
@@ -341,7 +345,7 @@ const InsuranceCategoryPage = () => {
           </div>
 
           {quoteSubmitted && quoteResult ? (
-            <div className="card" style={{ padding: '32px', textAlign: 'center', background: 'linear-gradient(135deg, #081B33 0%, #1769FF 100%)', color: 'white' }}>
+            <div className="card" style={{ padding: '32px', textAlign: 'center', background: 'linear-gradient(135deg, #061321 0%, #1677FF 100%)', color: 'white' }}>
               <div style={{ fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.8, marginBottom: '16px' }}>Your Monthly Premium</div>
               <div style={{ fontSize: '48px', fontWeight: 800, marginBottom: '8px' }}>${quoteResult.monthlyPremium}</div>
               <div style={{ fontSize: '16px', opacity: 0.9 }}>Annual premium: ${quoteResult.annualPremium.toLocaleString()}</div>
@@ -401,7 +405,7 @@ const InsuranceCategoryPage = () => {
               { q: 'Can I adjust my coverage?', a: 'Yes, you can modify your coverage limits at any time through your account dashboard.' },
               { q: 'What documents do I need?', a: 'Policy documents, proof of loss, photos, and any relevant receipts or reports.' }
             ].map((faq, idx) => (
-              <div key={idx} style={{ borderBottom: '1px solid rgba(8,27,51,0.08)', padding: '16px 0' }}>
+              <div key={idx} style={{ borderBottom: '1px solid rgba(6,27,51,0.08)', padding: '16px 0' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }}
                   onClick={() => {}}
                 >

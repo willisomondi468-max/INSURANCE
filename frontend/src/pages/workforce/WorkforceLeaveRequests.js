@@ -1,8 +1,15 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import api from '../../api';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import api from '../../api.js';
+import CinematicDashboardHero from '../../components/CinematicDashboardHero.jsx';
 
-// WorkforceLeaveRequests - Leave Requests Page
+/**
+ * WorkforceLeaveRequests - Leave Requests Page
+ * Submit, approve, reject leave requests
+ */
 const WorkforceLeaveRequests = () => {
+  const navigate = useNavigate();
+  const [token] = useState(localStorage.getItem('token'));
   const [leaveRequests, setLeaveRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({ status: '', employeeId: '' });
@@ -11,9 +18,8 @@ const WorkforceLeaveRequests = () => {
     employeeId: '', leaveType: 'annual', startDate: '', endDate: '', reason: ''
   });
   const [employees, setEmployees] = useState([]);
-  const [token] = useState(localStorage.getItem('token'));
 
-  const fetchLeaveRequests = useCallback(async () => {
+  const fetchLeaveRequests = async () => {
     try {
       const params = new URLSearchParams();
       if (filters.status) params.set('status', filters.status);
@@ -25,16 +31,16 @@ const WorkforceLeaveRequests = () => {
     } finally {
       setLoading(false);
     }
-  }, [token, filters.status, filters.employeeId]);
+  };
 
-  const fetchEmployees = useCallback(async () => {
+  const fetchEmployees = async () => {
     try {
       const res = await api.get('/employees', token);
       if (res.success) setEmployees(res.data.employees);
     } catch (err) {
       console.error('Fetch employees error:', err);
     }
-  }, [token]);
+  };
 
   useEffect(() => {
     fetchLeaveRequests();
@@ -70,7 +76,7 @@ const WorkforceLeaveRequests = () => {
 
   const statusVariant = (status) => {
     switch (status) {
-      case 'approved': return 'badge-accent';
+      case 'approved': return 'badge-success';
       case 'rejected': return 'badge-danger';
       case 'pending': return 'badge-warning';
       default: return 'badge-primary';
@@ -79,58 +85,69 @@ const WorkforceLeaveRequests = () => {
 
   return (
     <div className="fade-in">
-      <div className="dashboard-header">
-        <h1 className="dashboard-title">Leave Requests</h1>
-        <button className="btn btn-primary" onClick={() => setShowForm(true)}>
-          + Request Leave
-        </button>
-      </div>
+      <CinematicDashboardHero
+        title="Leave Requests"
+        subtitle="Submit, approve, and manage leave applications"
+        role="company_admin"
+        actions={[
+          <button key="requestLeave" className="btn btn-primary btn-sm" onClick={() => setShowForm(true)}>
+            + Request Leave
+          </button>
+        ]}
+      />
 
-      <div className="card">
-        <div style={{ padding: '16px', display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
-          <select className="form-input" value={filters.status} onChange={(e) => setFilters({ ...filters, status: e.target.value })}>
-            <option value="">All Statuses</option>
-            <option value="pending">Pending</option>
-            <option value="approved">Approved</option>
-            <option value="rejected">Rejected</option>
-            <option value="cancelled">Cancelled</option>
-          </select>
-          <select className="form-input" value={filters.employeeId} onChange={(e) => setFilters({ ...filters, employeeId: e.target.value })}>
-            <option value="">All Employees</option>
-            {employees.map(e => <option key={e.id} value={e.id}>{e.employeeNumber} - {e.jobTitle}</option>)}
-          </select>
+      <div style={{ padding: '0 24px 48px 24px', maxWidth: '1400px', margin: '0 auto' }}>
+        {/* Filters */}
+        <div className="card" style={{ marginBottom: '24px' }}>
+          <div style={{ padding: '24px', display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
+            <select className="form-input" value={filters.status} onChange={(e) => setFilters({ ...filters, status: e.target.value })}>
+              <option value="">All Statuses</option>
+              <option value="pending">Pending</option>
+              <option value="approved">Approved</option>
+              <option value="rejected">Rejected</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+            <select className="form-input" value={filters.employeeId} onChange={(e) => setFilters({ ...filters, employeeId: e.target.value })}>
+              <option value="">All Employees</option>
+              {employees.map(e => (
+                <option key={e.id} value={e.id}>{e.employeeNumber} - {e.jobTitle}</option>
+              ))}
+            </select>
+          </div>
         </div>
       </div>
 
       {loading ? (
-        <div className="loading-spinner"><div className="spinner"></div></div>
+        <div className="loading-spinner" style={{ padding: '60px 0' }}>
+          <div className="spinner"></div>
+        </div>
       ) : (
         <div className="card">
-          <div style={{ overflowX: 'auto' }}>
+          <div style={{ padding: '0 24px', overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ textAlign: 'left', borderBottom: '2px solid #eee' }}>
-                  <th style={{ padding: '12px' }}>Employee</th>
-                  <th style={{ padding: '12px' }}>Leave Type</th>
-                  <th style={{ padding: '12px' }}>Start Date</th>
-                  <th style={{ padding: '12px' }}>End Date</th>
-                  <th style={{ padding: '12px' }}>Reason</th>
-                  <th style={{ padding: '12px' }}>Status</th>
-                  <th style={{ padding: '12px' }}>Actions</th>
+                  <th style={{ padding: '16px' }}>Employee</th>
+                  <th style={{ padding: '16px' }}>Leave Type</th>
+                  <th style={{ padding: '16px' }}>Start Date</th>
+                  <th style={{ padding: '16px' }}>End Date</th>
+                  <th style={{ padding: '16px' }}>Reason</th>
+                  <th style={{ padding: '16px' }}>Status</th>
+                  <th style={{ padding: '16px' }}>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {leaveRequests.map(lr => (
-                  <tr key={lr.id} style={{ borderBottom: '1px solid #eee' }}>
-                    <td style={{ padding: '12px' }}>{lr.employeeNumber}</td>
-                    <td style={{ padding: '12px' }}>{lr.leaveType.replace(/_/g, ' ')}</td>
-                    <td style={{ padding: '12px' }}>{lr.startDate}</td>
-                    <td style={{ padding: '12px' }}>{lr.endDate}</td>
-                    <td style={{ padding: '12px' }}>{lr.reason || '—'}</td>
-                    <td style={{ padding: '12px' }}>
+                  <tr key={lr.id} style={{ borderBottom: '1px solid rgba(6,27,51,0.06)' }}>
+                    <td style={{ padding: '16px' }}>{lr.employeeNumber}</td>
+                    <td style={{ padding: '16px' }}>{lr.leaveType.replace(/_/g, ' ')}</td>
+                    <td style={{ padding: '16px' }}>{lr.startDate}</td>
+                    <td style={{ padding: '16px' }}>{lr.endDate}</td>
+                    <td style={{ padding: '16px' }}>{lr.reason || '—'}</td>
+                    <td style={{ padding: '16px' }}>
                       <span className={`badge ${statusVariant(lr.approvalStatus)}`}>{lr.approvalStatus}</span>
                     </td>
-                    <td style={{ padding: '12px' }}>
+                    <td style={{ padding: '16px' }}>
                       {lr.approvalStatus === 'pending' && (
                         <>
                           <button className="btn btn-sm btn-success" onClick={() => handleApprove(lr.id, 'approved')}>Approve</button>
@@ -140,9 +157,9 @@ const WorkforceLeaveRequests = () => {
                     </td>
                   </tr>
                 ))}
-                {leaveRequests.length === 0 && (
+                {leaveRequests.length === 0 ? (
                   <tr>
-                    <td colSpan="7" style={{ padding: '24px', textAlign: 'center', color: '#666' }}>
+                    <td colSpan="7" style={{ padding: '48px', textAlign: 'center', color: 'var(--text-secondary)' }}>
                       No leave requests found.
                     </td>
                   </tr>
@@ -151,19 +168,21 @@ const WorkforceLeaveRequests = () => {
             </table>
           </div>
         </div>
-      )}
+      </div>
 
       {showForm && (
         <div className="card" style={{ marginTop: '24px' }}>
           <div className="card-header">
             <h3 className="card-title">Request Leave</h3>
           </div>
-          <form onSubmit={handleCreate} style={{ padding: '16px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
+          <form onSubmit={handleCreate} style={{ padding: '24px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '20px' }}>
             <div className="form-group">
               <label className="form-label">Employee *</label>
               <select className="form-input" value={formData.employeeId} onChange={(e) => setFormData({ ...formData, employeeId: e.target.value })} required>
                 <option value="">Select employee</option>
-                {employees.map(e => <option key={e.id} value={e.id}>{e.employeeNumber} - {e.jobTitle}</option>)}
+                {employees.map(e => (
+                  <option key={e.id} value={e.id}>{e.employeeNumber} - {e.jobTitle}</option>
+                ))}
               </select>
             </div>
             <div className="form-group">
@@ -191,7 +210,9 @@ const WorkforceLeaveRequests = () => {
               <textarea className="form-input" value={formData.reason} onChange={(e) => setFormData({ ...formData, reason: e.target.value })} rows={3} required />
             </div>
             <div style={{ gridColumn: '1 / -1', display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-              <button type="button" className="btn btn-sm btn-outline" onClick={() => setShowForm(false)}>Cancel</button>
+              <button type="button" className="btn btn-sm btn-outline" onClick={() => setShowForm(false)}>
+                Cancel
+              </button>
               <button type="submit" className="btn btn-primary">Submit Request</button>
             </div>
           </form>
@@ -202,5 +223,3 @@ const WorkforceLeaveRequests = () => {
 };
 
 export default WorkforceLeaveRequests;
-
-

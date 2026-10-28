@@ -1,21 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../../api';
+import api from '../../api.js';
 
-// WorkforceTasks - Task Management Page
+/**
+ * WorkforceTasks - Task Management Page
+ */
 const WorkforceTasks = () => {
-  const navigate = useNavigate();
   const [token] = useState(localStorage.getItem('token'));
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [pagination, setPagination] = useState({ total: 0, page: 1, limit: 10, pages: 0 });
-  const [filters, setFilters] = useState({ search: '', status: '', priority: '', taskCategory: '', assignedTo: '' });
+  const [filters, setFilters] = useState({ search: '', status: '', priority: '', taskCategory: '' });
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({
     title: '', description: '', taskCategory: 'administrative', priority: 'normal',
     complexityLevel: 1, estimatedEffortMinutes: 60, dueAt: '', assigneeIds: []
   });
-  const [, setEditingId] = useState(null);
+  const navigate = useNavigate();
 
   const fetchTasks = async () => {
     try {
@@ -87,7 +88,7 @@ const WorkforceTasks = () => {
 
   const statusVariant = (status) => {
     switch (status) {
-      case 'completed': return 'badge-accent';
+      case 'completed': return 'badge-success';
       case 'overdue': return 'badge-danger';
       case 'in_progress': return 'badge-warning';
       case 'pending_review': return 'badge-warning';
@@ -99,71 +100,75 @@ const WorkforceTasks = () => {
 
   return (
     <div className="fade-in">
-      <div className="dashboard-header">
-        <h1 className="dashboard-title">Task Management</h1>
-        <button className="btn btn-primary" onClick={() => { setEditingId(null); setShowForm(true); }}>
-          + Create Task
-        </button>
-      </div>
+      <CinematicDashboardHero
+        title="Task Management"
+        subtitle="Create, assign, and track tasks across your organization"
+        role="company_admin"
+        actions={[
+          <button key="createTask" className="btn btn-primary btn-sm" onClick={() => setShowForm(true)}>
+            + Create Task
+          </button>
+        ]}
+      />
 
-      <div className="card">
-        <div style={{ padding: '16px', display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
-          <div className="form-group" style={{ flex: 1, minWidth: '200px' }}>
-            <input
-              className="form-input"
-              placeholder="Search tasks..."
-              value={filters.search}
-              onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-            />
+      <div style={{ padding: '0 24px 48px 24px', maxWidth: '1400px', margin: '0 auto' }}>
+        {/* Filters */}
+        <div className="card" style={{ marginBottom: '24px' }}>
+          <div style={{ padding: '24px', display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
+            <div className="form-group" style={{ flex: 1, minWidth: '220px', margin: 0 }}>
+              <input className="form-input" placeholder="Search tasks..." value={filters.search} onChange={(e) => setFilters({ ...filters, search: e.target.value })} />
+            </div>
+            <select className="form-input" value={filters.status} onChange={(e) => setFilters({ ...filters, status: e.target.value })}>
+              <option value="">All Statuses</option>
+              <option value="draft">Draft</option>
+              <option value="assigned">Assigned</option>
+              <option value="in_progress">In Progress</option>
+              <option value="pending_review">Pending Review</option>
+              <option value="completed">Completed</option>
+              <option value="overdue">Overdue</option>
+              <option value="rejected">Rejected</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+            <select className="form-input" value={filters.priority} onChange={(e) => setFilters({ ...filters, priority: e.target.value })}>
+              <option value="">All Priorities</option>
+              <option value="low">Low</option>
+              <option value="normal">Normal</option>
+              <option value="high">High</option>
+              <option value="urgent">Urgent</option>
+            </select>
           </div>
-          <select className="form-input" value={filters.status} onChange={(e) => setFilters({ ...filters, status: e.target.value })}>
-            <option value="">All Statuses</option>
-            <option value="draft">Draft</option>
-            <option value="assigned">Assigned</option>
-            <option value="in_progress">In Progress</option>
-            <option value="pending_review">Pending Review</option>
-            <option value="completed">Completed</option>
-            <option value="overdue">Overdue</option>
-            <option value="rejected">Rejected</option>
-            <option value="cancelled">Cancelled</option>
-          </select>
-          <select className="form-input" value={filters.priority} onChange={(e) => setFilters({ ...filters, priority: e.target.value })}>
-            <option value="">All Priorities</option>
-            <option value="low">Low</option>
-            <option value="normal">Normal</option>
-            <option value="high">High</option>
-            <option value="urgent">Urgent</option>
-          </select>
         </div>
       </div>
 
       {loading ? (
-        <div className="loading-spinner"><div className="spinner"></div></div>
+        <div className="loading-spinner" style={{ padding: '60px 0' }}>
+          <div className="spinner"></div>
+        </div>
       ) : (
-        <div className="card">
-          <div style={{ overflowX: 'auto' }}>
+        <div className="card" style={{ marginBottom: '24px' }}>
+          <div style={{ padding: '0 24px', overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ textAlign: 'left', borderBottom: '2px solid #eee' }}>
-                  <th style={{ padding: '12px' }}>Task Number</th>
-                  <th style={{ padding: '12px' }}>Title</th>
-                  <th style={{ padding: '12px' }}>Category</th>
-                  <th style={{ padding: '12px' }}>Priority</th>
-                  <th style={{ padding: '12px' }}>Status</th>
-                  <th style={{ padding: '12px' }}>Due Date</th>
-                  <th style={{ padding: '12px' }}>Actions</th>
+                  <th style={{ padding: '16px' }}>Task Number</th>
+                  <th style={{ padding: '16px' }}>Title</th>
+                  <th style={{ padding: '16px' }}>Category</th>
+                  <th style={{ padding: '16px' }}>Priority</th>
+                  <th style={{ padding: '16px' }}>Status</th>
+                  <th style={{ padding: '16px' }}>Due Date</th>
+                  <th style={{ padding: '16px' }}>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {tasks.map(task => (
-                  <tr key={task.id} style={{ borderBottom: '1px solid #eee' }}>
-                    <td style={{ padding: '12px', fontWeight: 'bold' }}>{task.taskNumber}</td>
-                    <td style={{ padding: '12px' }}>{task.title}</td>
-                    <td style={{ padding: '12px' }}>{task.taskCategory.replace(/_/g, ' ')}</td>
-                    <td style={{ padding: '12px' }}><span className={`badge ${statusVariant(task.priority)}`}>{task.priority}</span></td>
-                    <td style={{ padding: '12px' }}><span className={`badge ${statusVariant(task.status)}`}>{task.status.replace(/_/g, ' ')}</span></td>
-                    <td style={{ padding: '12px' }}>{task.dueAt ? new Date(task.dueAt).toLocaleDateString() : '—'}</td>
-                    <td style={{ padding: '12px' }}>
+                  <tr key={task.id} style={{ borderBottom: '1px solid rgba(6,27,51,0.06)' }}>
+                    <td style={{ padding: '16px', fontWeight: 'bold' }}>{task.taskNumber}</td>
+                    <td style={{ padding: '16px' }}>{task.title}</td>
+                    <td style={{ padding: '16px' }}>{task.taskCategory.replace(/_/g, ' ')}</td>
+                    <td style={{ padding: '16px' }}><span className={`badge ${statusVariant(task.priority)}`}>{task.priority}</span></td>
+                    <td style={{ padding: '16px' }}><span className={`badge ${statusVariant(task.status)}`}>{task.status.replace(/_/g, ' ')}</span></td>
+                    <td style={{ padding: '16px' }}>{task.due_at ? new Date(task.due_at).toLocaleDateString() : '—'}</td>
+                    <td style={{ padding: '16px' }}>
                       <button className="btn btn-sm btn-outline" onClick={() => navigate(`/workforce/tasks/${task.id}`)}>View</button>
                       {task.status === 'assigned' && (
                         <button className="btn btn-sm btn-primary" onClick={() => handleStart(task.id)}>Start</button>
@@ -180,9 +185,9 @@ const WorkforceTasks = () => {
                     </td>
                   </tr>
                 ))}
-                {tasks.length === 0 && (
+                {tasks.length === 0 ? (
                   <tr>
-                    <td colSpan="7" style={{ padding: '24px', textAlign: 'center', color: '#666' }}>
+                    <td colSpan="7" style={{ padding: '48px', textAlign: 'center', color: 'var(--text-secondary)' }}>
                       No tasks found. Create your first task to get started.
                     </td>
                   </tr>
@@ -191,14 +196,14 @@ const WorkforceTasks = () => {
             </table>
           </div>
         </div>
-      )}
+      </div>
 
       {showForm && (
         <div className="card" style={{ marginTop: '24px' }}>
           <div className="card-header">
             <h3 className="card-title">Create New Task</h3>
           </div>
-          <form onSubmit={handleCreate} style={{ padding: '16px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
+          <form onSubmit={handleCreate} style={{ padding: '24px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '20px' }}>
             <div className="form-group">
               <label className="form-label">Title *</label>
               <input className="form-input" value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} required />
@@ -246,7 +251,9 @@ const WorkforceTasks = () => {
               <input type="datetime-local" className="form-input" value={formData.dueAt} onChange={(e) => setFormData({ ...formData, dueAt: e.target.value })} />
             </div>
             <div style={{ gridColumn: '1 / -1', display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-              <button type="button" className="btn btn-sm btn-outline" onClick={() => { setShowForm(false); }}>Cancel</button>
+              <button type="button" className="btn btn-sm btn-outline" onClick={() => { setShowForm(false); }}>
+                Cancel
+              </button>
               <button type="submit" className="btn btn-primary">Create Task</button>
             </div>
           </form>
@@ -257,5 +264,3 @@ const WorkforceTasks = () => {
 };
 
 export default WorkforceTasks;
-
-
