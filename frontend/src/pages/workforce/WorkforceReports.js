@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import api from '../../api.js';
-import CinematicDashboardHero from '../components/CinematicDashboardHero';
+import CinematicDashboardHero from '../components/CinematicDashboardHero.jsx';
 
 /**
  * WorkforceReports - Monthly Performance Reports

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../api.js';
+import CinematicDashboardHero from '../../components/CinematicDashboardHero.jsx';
 
 /**
  * WorkforceTasks - Task Management Page
